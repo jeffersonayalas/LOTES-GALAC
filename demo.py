@@ -1,86 +1,63 @@
 import pandas as pd 
-import os
+from consultas import consultar
+from openpyxl import load_workbook
+from fila import get_celda, obtener_numero_fila_por_valor
+from depurar_contactos import encontrar_proximo_rif, proximo_producto
+from get_elements import get_art
 
-# --- functions --- #
-def leer_excel(ruta_excel, nombre_cliente, columna_nombre="Cliente"):
-    try:
-        df = pd.read_excel(ruta_excel, header=0)
-        #print(df) #lIBRO COMPLETO - incluyendo planes
-        #print(df.columns) #Celdas
-        df[columna_nombre].str.contains(nombre_cliente).any() #Devuelve True si el cliente fue encontrado
-        return df[columna_nombre].str.contains(nombre_cliente).any() #any devuelve True si al menos un valor es True
-    except FileNotFoundError:
-        print('No encontrado')
-        return False
-    except Exception as e:
-        print(f"Error al leer el archivo Excel: {e}")
-        return False
+n_borr = 0
 
-# Lee ambos archivos Excel
-try:
-    df_plantilla = pd.read_excel("plantilla.xlsx", header=0, sheet_name="PLANTILLA DE FACTURAS GALAC")
-    #df_otro = pd.read_excel("otro_archivo.xlsx", header=0, sheet_name="NombreDeLaHoja") # Reemplaza con el nombre de tu hoja y el archivo
-
-    #Archivo txt
-    f = open("clientes.exp", "r", encoding="latin-1")
-except FileNotFoundError:
-    print("Uno o ambos archivos no se encontraron.")
-    exit() # Sale del programa si no encuentra los archivos
-except Exception as e:
-    print(f"Ocurrió un error al leer los archivos: {e}")
-    exit()
-
-# Define las columnas a comparar (ajusta según tus necesidades)
-columnas_a_comparar = ["0", "1", "2"] # Reemplaza con los nombres de tus columnas
-
-input_cols = [0, 1, 2]
-df = pd.read_excel("plantilla.xlsx", header=0, sheet_name="PLANTILLA DE FACTURAS GALAC", )
-df_cols = df.columns
-#f = open("myfile.txt", "w")
-
-
-#Leer archivo txt
-
-count = 0
-libro = open("clientes_faltantes.txt", "w")
-clientes_facturas = open("clientes_facturas.txt", "w")
-for linea in f:
-    lineas = linea.split(';') #Obtenemos un arreglo con los datos del cliente
-    print(lineas)
-
-    if leer_excel('SUSCRIPTION.xlsx', lineas[1]):
-        clientes_facturas.write(linea)
-        continue
-    else: 
-        
-        #Clientes no encontrados
-        libro.write(linea) #Escribe el nombre del cliente
-        count += 1
+def export_archives(libro_excel, libro_facturas):
+    #Exportar archivos
+    libro_excel.to_csv("export.csv", sep=";", header=True, index=False)
+    libro_facturas.close()
     
+def depurar_nombre(libro_excel, monto):
+    count = 0
+    clientes_facturas = open('clientes_facturas.txt', 'w')
 
-#Realizar busqueda entre txt y excel
-for col in df_cols:
-    #print(col)
-    var = str(df[col].head(12))
-    #print(df[col].head())
-    #print(df[col].head(12)) # DAR FORMATO A LA SALIDA# 
-    #f.write(var)
+    datos_cliente = []
+    print("Dimension Pandas: ", len(libro_excel))
+    for fila in libro_excel['RIF']:
+        count += 1
+        rif = fila
+    
+        if pd.isna(rif):
+            #print(pd.isna(rif))
+            continue
+        elif count == len(libro_excel) -1:
+            break
+        
+        elif pd.notna(rif):
+            fila_cliente = obtener_numero_fila_por_valor(libro_excel, "RIF", rif)
+            proximo_rif = encontrar_proximo_rif(libro_excel, "RIF", rif) #PASARLE EL NUMERO DE FILA (OBTENER NUMERO DE FILA DEL RIF)
+            prox_product = proximo_producto(libro_excel, fila_cliente, "Facturas conciliadas/Líneas de factura/Producto")
 
-#libro = f.read()
-#print(libro)
+            #Obtener solo fila con plan mensual
+            producto = str(get_celda(libro_excel, rif, 'RIF', 'Facturas conciliadas/Líneas de factura/Producto'))
+           
 
-#Exportar archivos
-df.to_csv("export.csv", sep=",", header=True, index=False)
-f.close()
-
-# --- condiciones --- #
-'''
-nombre_cliente = lineas[1]
-if nombre_cliente:
-    print(f"El nombre del cliente es: {nombre_cliente}")
-else:
-    print("No se pudo obtener el nombre del cliente.")
-'''
+            if get_art(producto) != False:
 
 
+                print("ID: " + str(count) + "Rif actual: " + str(rif) + "Proximo Rif:" + str(proximo_rif) + "Producto: " + str(producto) + "Proximo producto: " + str(prox_product))
+    
+                if proximo_rif == None and pd.notna(prox_product):
+                    #print(")
+                    continue #Se salta este asiento
+        
+            #Condiciones
+                datos = consultar(rif, libro_excel, monto, count, datos_cliente)
+                if datos != None:
+                    print(datos)
+                    datos_cliente.append(datos)
+                    clientes_facturas.write('\n' + '\t'.join(str(dato) for dato in datos))
+                    print("CLIENTE AGREGADO")
+        else:
+            continue
+            #print('Finalizado...')
+        
+           
+        
+        
 
