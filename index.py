@@ -89,20 +89,24 @@ class VentanaPrincipal(QWidget):
         self.ruta_excel = None
         self.setWindowTitle("FACTURACION POR LOTES - GALAC/ODOO")
         # ... (código para self.etiqueta_excel, self.entrada_excel, self.boton_excel, self.etiqueta_resultado) ...
+        self.button = QPushButton("FUSIONAR", self)
+        self.etiqueta_resultado = QLabel("")
+        self.etiqueta_resultado.setObjectName("etiqueta_resultado") # asigna el ID para el QLabel resultado
+
         self.etiqueta_excel = QLabel("Archivo Excel:")
         self.entrada_excel = QLineEdit()
         self.boton_excel = QPushButton("Seleccionar")
-        self.button = QPushButton("FUSIONAR", self)
+        #self.button = QPushButton("FUSIONAR", self)
         self.boton_archivo_txt = QPushButton("Actualizar Base de Datos", self) # Nuevo boton
         self.boton_crear_bd = QPushButton("Crear Base de datos", self)
 
         #Accion de boton <<seleccionar excel>>
         self.boton_excel.clicked.connect(self.seleccionar_excel)
 
-        self.etiqueta_resultado = QLabel("")
+        #self.etiqueta_resultado = QLabel("")
         
         # ... (código para self.etiqueta_monto, self.entrada_monto) ...
-        self.etiqueta_monto = QLabel("Monto del Banco:")
+        self.etiqueta_monto = QLabel("Tasa del Banco (BCV):")
         self.entrada_monto = QLineEdit()
 
         disenio_horizontal_excel = QHBoxLayout()
@@ -175,10 +179,62 @@ class VentanaPrincipal(QWidget):
         else:
             self.etiqueta_resultado.setText("Selecciona un archivo Excel primero.")
 
+    """ 
+    def configurar(self):
+        self.estilos = 
+            QWidget {
+                background-color: #f0f0f0; /* Fondo suave */
+                font-family: Arial, sans-serif; /* Fuente legible */
+            }
+
+            QLabel {
+                font-weight: bold; /* Etiquetas en negrita */
+                color: #333; /* Texto oscuro */
+            }
+
+            QLineEdit {
+                border: 1px solid #ccc; /* Borde sutil */
+                border-radius: 5px; /* Esquinas redondeadas */
+                padding: 5px;
+            }
+
+            QPushButton {
+                background-color: #4CAF50; /* Verde claro */
+                color: white;
+                border: none;
+                border-radius: 5px;
+                padding: 10px 20px;
+                font-weight: bold;
+                min-width: 100px; /* Ancho mínimo para los botones */
+            }
+
+            QPushButton:hover {
+                background-color: #45a049; /* Verde más oscuro al pasar el ratón */
+            }
+
+            QPushButton#fusionar { /* Estilos específicos para el botón "FUSIONAR" */
+                 background-color: #2196F3; /* Azul */
+            }
+            QPushButton#fusionar:hover {
+                background-color: #1976D2; /* Azul más oscuro al pasar el ratón */
+            }
+
+            #etiqueta_resultado { /* Estilos para el QLabel de resultado */
+                color: #FF9800; /* Naranja, para destacar resultados */
+                font-size: 14px;
+                margin-top: 10px;
+            }
+
+        
+        return self.estilos
+        """
+
 
 
 if __name__ == "__main__":
     aplicacion = QApplication(sys.argv)
+    with open("estilos.qss", "r") as f: # leer los estilos del archivo
+          aplicacion.setStyleSheet(f.read())
     ventana = VentanaPrincipal()
     ventana.setGeometry(500, 500, 500, 500)
     ventana.show()
