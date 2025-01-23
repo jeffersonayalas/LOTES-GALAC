@@ -15,9 +15,11 @@ def export_archives(libro_excel, libro_facturas):
 def depurar_nombre(libro_excel, monto):
     count = 0
     clientes_facturas = open('clientes_facturas.txt', 'w')
-
     datos_cliente = []
+    datos_formateados = ''
+    
     print("Dimension Pandas: ", len(libro_excel))
+
     for fila in libro_excel['RIF']:
         count += 1
         rif = fila
@@ -52,10 +54,12 @@ def depurar_nombre(libro_excel, monto):
                     print(datos)
                     datos_cliente.append(datos)
                     clientes_facturas.write('\n' + '\t'.join(str(dato) for dato in datos))
+                    datos_formateados += ('\n' + '\t'.join(str(dato) for dato in datos))
                     print("CLIENTE AGREGADO")
         else:
             continue
             #print('Finalizado...')
+    return datos_formateados #Para verificar que termino el proceso
         
            
         
