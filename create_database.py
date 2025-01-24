@@ -106,6 +106,13 @@ def cerrar_conexiones(conn):
         print(f"Error al cerrar conexiones: {e}")
 
  
+def update_database(path_txt):
+    connection = connection_database()
+    result = leer_txt(connection, path_txt)
+    #consultar_data(connection)
+    connection.close()
+    return [True, result]
+
 def main_database():
     connection = connection_database()
     cerrar_conexiones(connection)
@@ -121,13 +128,7 @@ def main_database():
         connection.rollback()
 
     connection.close()
-
-def update_database(path_txt):
-    connection = connection_database()
-    leer_txt(connection, path_txt)
-    #consultar_data(connection)
-    connection.close()
-
+    return True
 
 
 
