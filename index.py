@@ -91,14 +91,45 @@ class VentanaPrincipal(QWidget):
         if self.ruta_excel:
             try:
                 monto = float(self.entrada_monto.text())  # Obtiene el monto y lo convierte a flotante
-                self.texto_edit.setText(execute_data(self.ruta_excel, monto))
-                self.etiqueta_resultado.setText("Datos procesados correctamente.")
+                
+                # Muestra el mensaje de espera
+                self.etiqueta_resultado.setText("Espere unos segundos...")
+
+                # Crea un hilo para la operación de fusión
+                hilo_fusion = threading.Thread(target=self.procesar_fusion, args=(self.ruta_excel, monto))
+                hilo_fusion.start()
+
             except ValueError:
                 self.etiqueta_resultado.setText("Error: Ingresa un monto válido.")
             except FileNotFoundError:
                 self.etiqueta_resultado.setText("Error: Archivo no encontrado.")
         else:
             self.etiqueta_resultado.setText("Selecciona un archivo Excel primero.")
+
+    def procesar_fusion(self, ruta_excel, monto):
+        # Este método se ejecuta en un hilo separado
+        try:
+            result = execute_data(ruta_excel, monto)
+
+            # Actualiza la interfaz en el hilo principal
+            QMetaObject.invokeMethod(self, "actualizar_resultado", Qt.QueuedConnection, Q_ARG(str, result))
+            QMetaObject.invokeMethod(self, "mensaje_exito", Qt.QueuedConnection)
+        
+        except Exception as e:
+            QMetaObject.invokeMethod(self, "mensaje_error", Qt.QueuedConnection, Q_ARG(str, str(e)))
+
+    @pyqtSlot(str)
+    def actualizar_resultado(self, result):
+        self.texto_edit.setText("")
+        self.texto_edit.setText(result)
+
+    @pyqtSlot()
+    def mensaje_exito(self):
+        self.etiqueta_resultado.setText("Datos procesados correctamente.")
+
+    @pyqtSlot(str)
+    def mensaje_error(self, error_message):
+        self.etiqueta_resultado.setText(f"Error al procesar los datos: {error_message}")
 
     def create_database(self):
         if main_database():
@@ -168,6 +199,7 @@ class VentanaArchivo(QMainWindow):
     @pyqtSlot(tuple)
     def mostrar_resultado_actualizacion(self, data):
         if data[0]:
+            self.texto.setText("")
             self.texto.setText(data[1])  # Actualizar la interfaz de usuario con el texto de resultado
             self.etiqueta.setText("Base de datos actualizada")
         else:

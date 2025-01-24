@@ -14,7 +14,7 @@ def leer_txt(connection, path_txt):
                     try:
                         print("Cliente: ", datos_cliente)
                         insertar_cliente(cod_galac, nombre, rif, connection)
-                        sep = "------------------------------------------------\n"
+                        sep = "---------------------------------------------\n"
                         hoja_cliente += str(sep + "Nombre: " + str(nombre) + "\nRif: " + str(rif) + "\n")
                     except Exception as e:
                         print(f"Error en la linea: {linea.strip()}. Error: {e}")
