@@ -8,12 +8,10 @@ from create_database import connection_database
 
 def consultar(id_cliente, libro_excel, monto_tasa, n_borrador, datos_cli): #Se le envia el id cliente de galac
         
-    #if len(id_cliente) <= 3:
-    #producto_celda = libro_excel["Facturas conciliadas/Líneas de factura/Producto"]
+   
         
     
     rif = id_cliente.split("-")
-    #conn = psycopg2.connect("dbname=GDATA user=postgres password=123456")
     conn = connection_database()
     cur = conn.cursor()
     query = "SELECT nombre_cliente, cod_galac, rif FROM contactos WHERE rif = %s;"
@@ -22,8 +20,6 @@ def consultar(id_cliente, libro_excel, monto_tasa, n_borrador, datos_cli): #Se l
         cur.execute(query, (rif[0] + rif[1],))
         rows = cur.fetchall()
 
-        #Consultar siguiente celda
-        #next_dat = next_layer(libro_excel, rif)
 
         if len(rows) > 0:
             
@@ -48,8 +44,8 @@ def consultar(id_cliente, libro_excel, monto_tasa, n_borrador, datos_cli): #Se l
 
             if float(bs) > 0:
                 total_iva = base_imp_d_des * 0.16
-            else: 
-                total_iva = 0
+            else: ### EN DESARROLLO ###
+                total_iva = base_imp_d_des * 0.16
             #print("IVA:"  + str(total_iva))
             
             total_facturas = get_celda(libro_excel, id_cliente, 'RIF', 'Facturas conciliadas/Total') * tasa
@@ -70,7 +66,7 @@ def consultar(id_cliente, libro_excel, monto_tasa, n_borrador, datos_cli): #Se l
             porcentaje_inicial = 0
             numero_cuotas = 1
             monto_cuotas = (base_imponible//1)
-            monto_ultima_cuota = total_facturas
+            monto_ultima_cuota = base_imponible
             forma_pago = 'CON' #########
             num_dias_ven = 30
             editar_monto_cuota = 'N'

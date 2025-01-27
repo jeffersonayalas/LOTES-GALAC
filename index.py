@@ -23,10 +23,24 @@ class Ventana(QMainWindow):
         layoutPrincipal.addWidget(ventana2, 0, 0)  # Fila 0, Columna 0
         layoutPrincipal.setRowStretch(0, 1)
         layoutPrincipal.setColumnStretch(1, 1)
-
         widgetCentral = QWidget()
         widgetCentral.setLayout(layoutPrincipal)
         self.setCentralWidget(widgetCentral)
+
+        
+
+    def center(self):
+        # Obtener el tamaño de la ventana
+        tamanio_ventana = self.frameGeometry()
+        # Obtener la resolución de la pantalla
+        pantalla = QApplication.primaryScreen().availableGeometry()
+        
+        # Calcular la posición centrada
+        x = (pantalla.width() - tamanio_ventana.width()) // 2
+        y = (pantalla.height() - tamanio_ventana.height()) // 2
+
+        # Mover la ventana a la posición calculada
+        self.move(x, y)
 
 
 class VentanaPrincipal(QWidget):
@@ -217,5 +231,4 @@ if __name__ == "__main__":
     sys.exit(app.exec_())
 
 
-### COMMENT ###
-"""XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"""
+

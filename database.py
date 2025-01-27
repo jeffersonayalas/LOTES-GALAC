@@ -106,12 +106,6 @@ def drop(conn):
     return 0
 
 
-# Conexión a la base de datos (reemplaza con tus credenciales)
-#conn = psycopg2.connect("dbname=GALAC user=postgres password=123456")
-#leer_txt(conn)  # Llama a la función para leer y procesar el archivo
-#leer_productos(conn)
-#consultar_data(conn)
-#conn.close()
 
 
 

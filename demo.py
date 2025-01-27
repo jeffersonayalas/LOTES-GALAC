@@ -3,7 +3,7 @@ from consultas import consultar
 from openpyxl import load_workbook
 from fila import get_celda, obtener_numero_fila_por_valor
 from depurar_contactos import encontrar_proximo_rif, proximo_producto
-from get_elements import get_art
+from get_elements import get_art, codigo_vendedor
 
 n_borr = 0
 
@@ -27,6 +27,8 @@ def depurar_nombre(libro_excel, monto):
         if pd.isna(rif):
             #print(pd.isna(rif))
             continue
+        if codigo_vendedor == "0000X": #EN CASO DE QUE NO ESTE EN NINGUN DIARO NI BANCO
+            continue
         elif count == len(libro_excel) -1:
             break
         
@@ -34,6 +36,7 @@ def depurar_nombre(libro_excel, monto):
             fila_cliente = obtener_numero_fila_por_valor(libro_excel, "RIF", rif)
             proximo_rif = encontrar_proximo_rif(libro_excel, "RIF", rif) #PASARLE EL NUMERO DE FILA (OBTENER NUMERO DE FILA DEL RIF)
             prox_product = proximo_producto(libro_excel, fila_cliente, "Facturas conciliadas/Líneas de factura/Producto")
+            diario = codigo_vendedor(libro_excel, rif)
 
             #Obtener solo fila con plan mensual
             producto = str(get_celda(libro_excel, rif, 'RIF', 'Facturas conciliadas/Líneas de factura/Producto'))
