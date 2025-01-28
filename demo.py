@@ -27,8 +27,7 @@ def depurar_nombre(libro_excel, monto):
         if pd.isna(rif):
             #print(pd.isna(rif))
             continue
-        if codigo_vendedor == "0000X": #EN CASO DE QUE NO ESTE EN NINGUN DIARO NI BANCO
-            continue
+       
         elif count == len(libro_excel) -1:
             break
         
@@ -40,10 +39,12 @@ def depurar_nombre(libro_excel, monto):
 
             #Obtener solo fila con plan mensual
             producto = str(get_celda(libro_excel, rif, 'RIF', 'Facturas conciliadas/Líneas de factura/Producto'))
+
+            if diario == "0000X": #EN CASO DE QUE NO ESTE EN NINGUN DIARO NI BANCO
+                continue
            
 
             if get_art(producto) != False:
-
 
                 print("ID: " + str(count) + "Rif actual: " + str(rif) + "Proximo Rif:" + str(proximo_rif) + "Producto: " + str(producto) + "Proximo producto: " + str(prox_product))
     
