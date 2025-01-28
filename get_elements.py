@@ -2,14 +2,12 @@ from fila import get_celda
 import datetime
 
 
-
 def numero(borrador):
     return str(borrador)
 
 
 def codigo_vendedor(libro_excel, rif_cliente): #Se realiza consulta a la base de datos para obtener el codigo del cliente
     vendedor = get_celda(libro_excel, rif_cliente, 'RIF', 'Diario')
-
 
     if vendedor == "BELLA FLORIDA 01":
         return '00007'
@@ -69,8 +67,10 @@ def codigo_vendedor(libro_excel, rif_cliente): #Se realiza consulta a la base de
         return '00027'
     elif vendedor == "FACTURACION 3":
         return '00006'
-    else:
+    elif "BANCO" in vendedor:
         return "00001"
+    else:
+        return "0000X"
     
 
 def get_observaciones(fecha):
@@ -100,16 +100,6 @@ def get_art(producto): #Funcion que devuelve codigo de articulo de acuerdo al pl
     if len(art) > 1:
         prod = art[1].lstrip(" ")
    
-    
-
-    """ 
-    if prod == "Residencial FTTH 100 Mbps":
-        return "FR100"
-    else:
-        return "NE00"
-        """
-    
-    
     productos = {
             "Residencial FTTH 100 Mbps": "FR100",
             "Residencial FTTH 200 Mbps": "FR200",
@@ -126,37 +116,11 @@ def get_art(producto): #Funcion que devuelve codigo de articulo de acuerdo al pl
             "Pyme FTTH 300 Mbps": "FP300",
             "Pyme FTTH 400 Mbps": "FP400",
             "Pyme FTTH 450 Mbps": "FP450",
-            "Pyme FTTH 500 Mbps": "FP500",
-            #"Pyme Básico Asimétrico": "",
-            #"Pyme 40 Mbps": "", #revisar 
-            #"Pyme 50 Mbps": "", #revisar
-            #"Pyme Plus Más": "",#revisar
-            #"ASIGNACION A IP PUBLICA": "0074",
-            #"Mbps Dedicado": "0012",
-            #"Residencial FTTH Esencial - 50Mbps": "", #No aplica
-            #"Residencial Básico Plus": "",            #No aplica
-            #"Residencial Ultra 30 Mbps": "",          #No aplica
-            #"Residencial Select 35 Mbps": "",         
-            #"Residencial Básico 10 Mbps": "",
-            #"Residencial Extreme Plus 80 Mbps": "",
-            #"Residencial Básico 4 Mbps":"", 
-            #"Residencial Performance Plus":"",
-            #"Residencial Extreme Plus 100 Mbps":"",
-            #"Residencial Performance Plus 50 Mbps":"",
-            #"Residencial RF 15 Mbps":"",
-            #"Residencial RF 50 Mbps":"",
-            #"Dedicado Netcom Tecne":"",
-            #"Prefijo de IPs públicas":"",
-            #"Servicio BGP":"",
-            #"Servicio de Habilitación de Puertos":"",
-            #"Servicio de apertura de puertos":"",            
+            "Pyme FTTH 500 Mbps": "FP500",          
         }
-    
     
     return productos.get(prod, False)
 
-
-    
 
 def get_tasa(tasa):
     return tasa
@@ -174,12 +138,6 @@ def get_fecha(fecha_hora_str):
             return fecha
         
             
-
-
-   
-   
-
-#print(get_observaciones('2025-03-07'))
     
     
 

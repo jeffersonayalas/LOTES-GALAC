@@ -4,19 +4,24 @@ def leer_txt(connection, path_txt):
     """Lee el archivo TXT e inserta los datos en la base de datos."""
     try:
         with open(path_txt, "r", encoding="latin-1") as data_clientes: #utf-8 si latin-1 falla
+            hoja_cliente = ""
             for linea in data_clientes:
                 datos_cliente = linea.split(";") # strip() para eliminar espacios en blanco
+                
                 print(len(datos_cliente))
                 if len(datos_cliente) == 26: #Verifica que la línea tenga 3 elementos
                     cod_galac, nombre, rif = datos_cliente[0], datos_cliente[1], datos_cliente[2]
                     try:
                         print("Cliente: ", datos_cliente)
                         insertar_cliente(cod_galac, nombre, rif, connection)
+                        sep = "---------------------------------------------\n"
+                        hoja_cliente += str(sep + "Nombre: " + str(nombre) + "\nRif: " + str(rif) + "\n")
                     except Exception as e:
                         print(f"Error en la linea: {linea.strip()}. Error: {e}")
                 else:
                     print(f"Línea incorrecta: {linea.strip()}")
                     continue
+        return hoja_cliente
                     
 
     except FileNotFoundError as e:
@@ -101,12 +106,6 @@ def drop(conn):
     return 0
 
 
-# Conexión a la base de datos (reemplaza con tus credenciales)
-#conn = psycopg2.connect("dbname=GALAC user=postgres password=123456")
-#leer_txt(conn)  # Llama a la función para leer y procesar el archivo
-#leer_productos(conn)
-#consultar_data(conn)
-#conn.close()
 
 
 

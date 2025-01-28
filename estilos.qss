@@ -1,0 +1,52 @@
+
+QWidget {
+    background-color:rgb(43, 43, 43); /* Fondo suave */
+    font-family: Apple, Arial, sans-serif; /* Fuente legible */
+    font-size: 15px;
+    color: white;
+}
+
+QLabel {
+    font-weight: bold; /* Etiquetas en negrita */
+    /*color: #333; /* Texto oscuro */
+    color: white;
+}
+
+QLineEdit {
+    border: 1px solid rgb(0, 165, 248); /* Borde sutil */
+    border-radius: 5px; /* Esquinas redondeadas */
+    padding: 5px;
+}
+
+QPushButton {
+    background-color:rgb(18, 21, 196); 
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-weight: bold;
+    min-width: 100px; /* Ancho mínimo para los botones */
+    /*border: 1px solid rgb(227, 0, 248); /* Borde sutil */
+}
+
+QPushButton:hover {
+    background-color:rgb(92, 82, 233); /* Verde más oscuro al pasar el ratón */
+}
+
+QPushButton#fusionar { /* Estilos específicos para el botón "FUSIONAR" */
+  background-color: #2196F3; /* Azul */
+}
+QPushButton#fusionar:hover {
+  background-color: #1976D2; /* Azul más oscuro al pasar el ratón */
+}
+
+etiqueta_resultado { /* Estilos para el QLabel de resultado */
+    color: #FF9800; /* Naranja, para destacar resultados */
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+QTextEdit {
+    border: 1px solid rgb(0, 0, 0); /* Borde sutil */
+    border-radius: 5px; /* Esquinas redondeadas */
+}
