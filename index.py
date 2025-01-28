@@ -67,6 +67,10 @@ class VentanaPrincipal(QWidget):
         self.etiqueta_monto = QLabel("Tasa del Banco (BCV):")
         self.entrada_monto = QLineEdit()
 
+        self.etiqueta_impuesto = QLabel("Aplicar impuestos")
+        self.entrada_impuesto = QLineEdit()
+        self.boton_impuesto = QPushButton("Aplicar: ",self)
+
         disenio_horizontal_excel = QHBoxLayout()
         disenio_horizontal_excel.addWidget(self.etiqueta_excel)
         disenio_horizontal_excel.addWidget(self.entrada_excel)
@@ -75,6 +79,12 @@ class VentanaPrincipal(QWidget):
         disenio_horizontal_monto = QHBoxLayout()
         disenio_horizontal_monto.addWidget(self.etiqueta_monto)
         disenio_horizontal_monto.addWidget(self.entrada_monto)
+
+        disenio_horizontal_monto.addWidget(self.etiqueta_impuesto)
+        disenio_horizontal_monto.addWidget(self.entrada_impuesto)
+        disenio_horizontal_monto.addWidget(self.boton_impuesto)
+
+        disenio_horizontal_impuestos = QHBoxLayout()
 
         self.boton_crear_bd.clicked.connect(self.create_database)
 

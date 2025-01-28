@@ -1,6 +1,11 @@
 CREATE TABLE clientes (
     id SERIAL PRIMARY KEY,
-    codigo_galac INT NOT NULL
-    nombre TEXT NOT NULL,
-    rif TEXT NOT NULL
+    fecha INT NOT NULL
+    tasa TEXT NOT NULL,
+);
+
+CREATE TABLE clientes (
+    id SERIAL PRIMARY KEY,
+    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    tasa TEXT NOT NULL
 );
