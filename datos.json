@@ -1,0 +1,21 @@
+[
+    {
+        'id': 2256873, 
+        'partner_id_ref': 'PROV', 
+        'partner_id': [281077, '[PROV] FM LIDER 106.7'], 
+        'invoice_partner_display_name': '[PROV] FM LIDER 106.7', 
+        'rif': 'J-408544261', 
+        'state': 'posted', 
+        'invoice_date': '2025-01-30', 
+        'invoice_date_due': '2025-01-30', 
+        'source_id': False, 
+        'invoice_line_ids': [5382895], 
+        'amount_total_signed': 350.0, 
+        'amount_total_in_currency_signed': 350.0, 
+        'payment_state': 'paid', 
+        'amount_tax': 0.0, 
+        'amount_untaxed': 350.0, 
+        'igtf_invoice_amount': 0.0, 
+        'amount_residual': 0.0, 
+        'invoice_payments_widget': '{"title": "Less Payment", "outstanding": false, "content": [{"name": "Reembolso del proveedor $\\u00a0350,00 - [PROV] FM LIDER 106.7 - 30/01/2025", "journal_name": "NETCOM / RECURRENTE TESORERIA", "amount": 350.0, "currency": "$", "digits": [69, 2], "position": "before", "date": "2025-01-30", "payment_id": 5383426, "partial_id": 869622, "account_payment_id": 399478, "payment_method_name": "Manual", "move_id": 2257067, "ref": "NERT00011145 (Reversi\\u00f3n de: FCPRO/2025/01/0788, DEVOLUCION DE DINERO)"}']}}
+]

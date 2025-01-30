@@ -1,0 +1,35 @@
+{
+    "title": "Menos pagos", 
+    "outstanding": false, 
+    "content": 
+    [
+        {
+            "name": "Pago de cliente $\u00a046,00 - 20624 - FRIGORIFICO EL DIVINO NINO 372 CA - 27/12/2024", 
+            "journal_name": "LOS CAOBOS 02", 
+            "amount": 6.0, 
+            "currency": "$", 
+            "digits": [69, 2], 
+            "position": "before", 
+            "date": "2024-12-27", 
+            "payment_id": 4817406, 
+            "partial_id": 748641, 
+            "account_payment_id": 348059, 
+            "payment_method_name": "Manual", 
+            "move_id": 2037997, 
+            "ref": "LC-02/2024/12/0671 (00301580)"}, 
+        {
+            "name": "Pago de cliente $\u00a035,00 - 20624 - FRIGORIFICO EL DIVINO NINO 372 CA - 22/01/2025", 
+            "journal_name": "LOS CAOBOS 01", 
+            "amount": 34.0, 
+            "currency": "$", 
+            "digits": [69, 2], 
+            "position": "before", 
+            "date": "2025-01-22", 
+            "payment_id": 5332032, 
+            "partial_id": 859599, 
+            "account_payment_id": 395310, 
+            "payment_method_name": "Manual", 
+            "move_id": 2238675, 
+            "ref": "LC-01/2025/01/0634 (00301585)"}
+    ]
+}

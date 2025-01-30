@@ -1,6 +1,6 @@
 import sys
 import threading
-from PyQt5.QtWidgets import (QApplication, QWidget, QLabel, QPushButton, QVBoxLayout, QHBoxLayout, QFileDialog, QLineEdit, QMainWindow, QTextEdit, QTabWidget, QSplitter, QGridLayout)
+from PyQt5.QtWidgets import (QApplication, QWidget, QLabel, QPushButton, QVBoxLayout, QHBoxLayout, QFileDialog, QLineEdit, QMainWindow, QTextEdit, QTabWidget, QSplitter, QGridLayout, QDateEdit)
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 import pandas as pd
@@ -68,8 +68,13 @@ class VentanaPrincipal(QWidget):
         self.entrada_monto = QLineEdit()
 
         self.etiqueta_impuesto = QLabel("Aplicar impuestos")
-        self.entrada_impuesto = QLineEdit()
-        self.boton_impuesto = QPushButton("Aplicar: ",self)
+    
+        self.fecha = QLabel("Seleccione una fecha:")
+
+        # Crear el campo de fecha
+        self.date_edit = QDateEdit(self)
+        self.date_edit.setDate(QDate.currentDate())  # Establecer la fecha actual como valor por defecto
+        self.date_edit.setDisplayFormat("yyyy-MM-dd")  # Formato de visualización
 
         disenio_horizontal_excel = QHBoxLayout()
         disenio_horizontal_excel.addWidget(self.etiqueta_excel)
@@ -80,9 +85,8 @@ class VentanaPrincipal(QWidget):
         disenio_horizontal_monto.addWidget(self.etiqueta_monto)
         disenio_horizontal_monto.addWidget(self.entrada_monto)
 
-        disenio_horizontal_monto.addWidget(self.etiqueta_impuesto)
-        disenio_horizontal_monto.addWidget(self.entrada_impuesto)
-        disenio_horizontal_monto.addWidget(self.boton_impuesto)
+        disenio_horizontal_monto.addWidget(self.fecha)
+        disenio_horizontal_monto.addWidget(self.date_edit)
 
         disenio_horizontal_impuestos = QHBoxLayout()
 

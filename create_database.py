@@ -17,7 +17,7 @@ def connection_database(host = "localhost", puerto="5432"):
    
 
 
-def crear_base_datos(conn, nombre_bd, usuario_superusuario, contrasena_superusuario, host='localhost', puerto='5432'):
+def crear_base_datos(conn, nombre_bd): #This function drop the database if exist
     """Crea una base de datos PostgreSQL.
 
     Args:
@@ -71,7 +71,7 @@ def create_tables(conn, usuario_superusuario, contrasena_superusuario, host='loc
         # Tabla 1
         query_del = sql.SQL("DROP TABLE IF EXISTS {nombre_tabla1}").format(nombre_tabla1=sql.Identifier(nombre_tabla1))
         cur.execute(query_del) 
-        conn.commit()  # Importante: Confirmar la transacción
+        conn.commit() # Importante: Confirmar la transacción
         
         query1 = sql.SQL("""
             CREATE TABLE {nombre_tabla1} (
@@ -92,18 +92,23 @@ def create_tables(conn, usuario_superusuario, contrasena_superusuario, host='loc
         return False
     
 
-def cerrar_conexiones(conn):
+def cerrar_conexiones(conn, database):
     try:
         cur = conn.cursor()
         cur.execute("""
             SELECT pg_terminate_backend(pid)
             FROM pg_stat_activity
             WHERE datname = %s AND pid <> pg_backend_pid();
-        """, (nombre_base_datos,))  #Aquí está el cambio, se usa datname
+        """, (database,))  #Aquí está el cambio, se usa datname
         conn.commit()
-        print(f"Se intentó cerrar conexiones a '{nombre_base_datos}'.")
+        print(f"Se intentó cerrar conexiones a '{database}'.")
+        # Recuperamos el número de sesiones cerradas
+        num_cerradas = cur.rowcount
+        print(f"Se cerraron {num_cerradas} conexiones a '{database}'.")
     except psycopg2.Error as e:
         print(f"Error al cerrar conexiones: {e}")
+    finally:
+        cur.close()  # Cierra el cursor para liberar recursos
 
  
 def update_database(path_txt):
