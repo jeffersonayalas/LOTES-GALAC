@@ -1,14 +1,11 @@
 [
     {
-        'id': 2256873, 
-        'partner_id_ref': 'PROV', 
+        'id': 2256873,  
         'partner_id': [281077, '[PROV] FM LIDER 106.7'], 
-        'invoice_partner_display_name': '[PROV] FM LIDER 106.7', 
         'rif': 'J-408544261', 
         'state': 'posted', 
         'invoice_date': '2025-01-30', 
         'invoice_date_due': '2025-01-30', 
-        'source_id': False, 
         'invoice_line_ids': [5382895], 
         'amount_total_signed': 350.0, 
         'amount_total_in_currency_signed': 350.0, 

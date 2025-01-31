@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import (QApplication, QWidget, QLabel, QPushButton, QVBoxLa
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 import pandas as pd
-from create_database import main_database, update_database
+from operate_database import main_database, update_database
 from main import execute_data
 
 

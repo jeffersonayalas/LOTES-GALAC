@@ -120,8 +120,8 @@ def update_database(path_txt):
 
 def main_database():
     connection = connection_database()
-    cerrar_conexiones(connection)
-    if crear_base_datos(connection, nombre_base_datos, usuario_superusuario, contrasena_superusuario):
+    cerrar_conexiones(connection, "GDATA")
+    if crear_base_datos(connection, nombre_base_datos):
         print("Base de Datos creada")
         if create_tables(connection, usuario_superusuario, contrasena_superusuario):
             print("Tabla creada exitosamente. ")

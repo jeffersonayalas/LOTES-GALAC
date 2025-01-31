@@ -3,7 +3,7 @@ from get_elements import codigo_vendedor, get_observaciones, get_art, get_fecha
 from fila import get_celda
 import datetime
 import pandas as pd
-from create_database import connection_database
+from operate_database import connection_database
 
 
 def consultar(id_cliente, libro_excel, monto_tasa, n_borrador, datos_cli): #Se le envia el id cliente de galac

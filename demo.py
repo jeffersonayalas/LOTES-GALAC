@@ -25,7 +25,6 @@ def depurar_nombre(libro_excel, monto):
         rif = fila
     
         if pd.isna(rif):
-            #print(pd.isna(rif))
             continue
        
         elif count == len(libro_excel) -1:

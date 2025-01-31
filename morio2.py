@@ -4,7 +4,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from main import execute_data  # Asegúrate de que 'main.py' existe y tiene la función execute_data
 import pandas as pd
-from create_database import main_database, update_database
+from operate_database import main_database, update_database
 
 
 class VentanaArchivo(QMainWindow):  # Nueva ventana para seleccionar archivo TXT
