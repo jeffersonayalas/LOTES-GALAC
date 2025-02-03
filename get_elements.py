@@ -6,8 +6,8 @@ def numero(borrador):
     return str(borrador)
 
 
-def codigo_vendedor(libro_excel, rif_cliente): #Se realiza consulta a la base de datos para obtener el codigo del cliente
-    vendedor = get_celda(libro_excel, rif_cliente, 'RIF', 'Diario')
+def codigo_vendedor(diario): #Se realiza consulta a la base de datos para obtener el codigo del cliente
+    vendedor = diario
 
     if vendedor == "BELLA FLORIDA 01":
         return '00007'
@@ -96,7 +96,7 @@ def get_observaciones(fecha):
 def get_art(producto): #Funcion que devuelve codigo de articulo de acuerdo al plan del cliente
     art = producto.strip().split("]")
     prod = " "
-    print(art)
+    #print(art)
     if len(art) > 1:
         prod = art[1].lstrip(" ")
    

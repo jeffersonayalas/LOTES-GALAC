@@ -1,0 +1,9 @@
+'street': 'La Libertad Calle 80 Casa 88A-54',
+la libertad calle 80 casa 88A-54
+
+0000002292;SAMUEL DAVID L�PEZ GADEA;V254410264;;;;Activo;04124359278;;El Socorro, Sector La Charneca (Terminal del Socorro) Av Candelaria Casa N� 52-90;VALENCIA;;VALENCIA;No Asignado;00001;N;lopezsamuel600@gmail.com;;;N;;;0;1;02/06/2022 11:20:00;0
+0000001780;SAMUEL DAVID LOPEZ GADEA;V254410264;;;;Activo;04144377549;;AV CANDELARIA CASA NRO 5290 URB POPULR EL SOCORRO  SECTOR LA CHANECA VALENCIA CARABOBO;VALENCIA;;VALENCIA;No Asignado;00017;N;lopezsamueCl600@gmail.com;;;N;;;0;1;31/12/2010;0
+
+
+0000012232;JULIO GABRIEL BRACAMONTE;V175165742;;;;Activo;04145977042;;Calle Horizonte casa N�109/125 Barrio  Col�n Naguanagua;NAGUANAGUA;;VALENCIA;No Asignado;00013;N;gabrielbracamonte@gmail.com;;;N;;;0;1;11/10/2023 13:19:00;0
+0000012233;JULIO GABRIEL BRACAMONTE;V175165742;;;;Activo;04145977042;;Calle Horizonte casa N�109/125 Barrio  Col�n Naguanagua;VALENCIA;;VALENCIA;No Asignado;00001;N;gabrielbracamonte2023@gmail.com;;;N;;;0;1;11/10/2023 13:19:00;0
