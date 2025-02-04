@@ -6,7 +6,7 @@ from Borradores import *
 class Cliente:
 
     def __init__(self, info_odoo): #data es un diccionario que contiene los campos de factura obtenidos de odoo
-        self.rif = info_odoo['rif']
+        self.rif = info_odoo[0]['rif']
         self.connect = connection_database()
         self.suscripciones = get_cliente(self.connect, self.rif) #Se guarda un arreglo con las suscripciones (Codigo de Galac)
         self.info_factura = info_odoo

@@ -10,7 +10,8 @@ class Borrador:
 
     #Campos requeridos: rif, tasa_dolar, diario, pagos (pagos con fecha), base imponible de la factura, descuento, campo_bs, iva, 
     def __init__(self, rif_cliente, monto_tasa, info, cod_cliente):
-        self.info = info
+        print(info)
+        self.info = info[0]
 
 
         self.rif = rif_cliente
@@ -83,7 +84,7 @@ class Borrador:
         self.igtf_mon_local = 0
         self.igtf_mon_ext = 0
         self.alicuota_igtf = 3
-        self.descripcion = self.set_producto(self.info['invoice_line_ids']) #Campo descripcion en galac contiene es los prodcuto de la factura
+        self.descripcion = self.set_descripcion(self.info[1]) #Campo descripcion en galac contiene es los prodcuto de la factura
         self.alicuota_iva = 'ALG'
         self.cantidad = 1
         self.precio_sin_iva = self.base_imponible
@@ -215,7 +216,7 @@ class Borrador:
     def pagos(self):
         return None
     
-    def set_descripcion(self):
+    def set_producto(self):
         return None
     
     def calc_iva(self):
@@ -226,8 +227,16 @@ class Borrador:
         else: ### EN DESARROLLO ###
             return self.base_imp_d_des * 0.16
         
-    def set_producto(self, lines_ids):
-        return "[100]Residencial FTTH 100 Mbps"
+    def set_descripcion(self, lines_names):
+        description = ""
+        for line in lines_names:
+            description += line + ";"
+        print(description)
+        return description
+
+
+
+        
     
     def descuento():
         return None

@@ -49,20 +49,36 @@ fields_to_read = [
 if record_ids:
     count = 0
     for record_id in record_ids:
+        print("--------------------------------------------------------------------------------------------------------------------")
         result_execute = models.execute_kw(db, uid, password, 'account.move', 'read', [[record_id]], {'fields': fields_to_read})
+        #print(record_id)
+        #print('Productos de la factura de: ' + str(result_execute[0]['invoice_partner_display_name']))
         # Escribe los resultados en el archivo
         archive.write("\n" + str(result_execute[0]))
 
-        productos = []
-        lines = models.execute_kw(db, uid, password, 'account.move.line', 'read', result_execute[0]['invoice_line_ids'], {'fields': ['product_id', 'name']})
-        print("- - -" + str(lines) + "- - -")
+        invoice_line_ids = result_execute[0]['invoice_line_ids']
 
+        productos = [] #DEscomponer la estructura de productors e incluir solo el nombre....
+        if invoice_line_ids:
+            lines = models.execute_kw(db, uid, password, 'account.move.line', 'read', [invoice_line_ids], {'fields': ['product_id', 'name']}) #Lines es un arreglo que contiene diccionarios
+            #productos = lines
+            #print(productos)
+            #print(" - - - " + str(lines) + " - - - ")
+            #print("Invoice line IDs:", result_execute[0]['invoice_line_ids'])
+            
+            for line in lines:
+                #print(line['name'])
+                productos.append(line['name'])
+                #print(line)
+        
+        print(productos)
+        
         #Obtener el rif de la factura
         rif_cliente = result_execute[0]['rif']
         if rif_cliente == None:
             continue
 
-        datos = result_execute[0]
+        datos = [result_execute[0], productos]
         ob_cliente = Cliente(datos)
         ob_cliente.generar_borrador()
 else:

@@ -7,3 +7,35 @@ la libertad calle 80 casa 88A-54
 
 0000012232;JULIO GABRIEL BRACAMONTE;V175165742;;;;Activo;04145977042;;Calle Horizonte casa N�109/125 Barrio  Col�n Naguanagua;NAGUANAGUA;;VALENCIA;No Asignado;00013;N;gabrielbracamonte@gmail.com;;;N;;;0;1;11/10/2023 13:19:00;0
 0000012233;JULIO GABRIEL BRACAMONTE;V175165742;;;;Activo;04145977042;;Calle Horizonte casa N�109/125 Barrio  Col�n Naguanagua;VALENCIA;;VALENCIA;No Asignado;00001;N;gabrielbracamonte2023@gmail.com;;;N;;;0;1;11/10/2023 13:19:00;0
+
+
+[
+    {
+        'id': 5388082, 
+        'product_id': [3491, '[ROS-APT-0005] Roseta marca APT modelo 1 PUERTO CON ACOPLADOR'], 
+        'name': '[ROS-APT-0005] Roseta marca APT modelo 1 PUERTO CON ACOPLADOR'}, 
+    {
+        'id': 5388083, 
+        'product_id': [1385, '[CFO-FBH-0009] Carrete de fibra óptica marca Fiberhome modelo G.657A2 IC-FIG8A2-2C Drop 2H con mensajero 1Km OUTDOOR'], 
+        'name': '[CFO-FBH-0009] Carrete de fibra óptica marca Fiberhome modelo G.657A2 IC-FIG8A2-2C Drop 2H con mensajero 1Km OUTDOOR'}, 
+    {
+        'id': 5388084, 
+        'product_id': [3155, '[CON-APT-0006] Conector mecánico marca APT modelo SC/APC FAST'], 
+        'name': '[CON-APT-0006] Conector mecánico marca APT modelo SC/APC FAST'}, 
+    {
+        'id': 5388085, 
+        'product_id': [3207, '[TEN-APT-0007] Tensor marca APT modelo metálico sin S'], 
+        'name': '[TEN-APT-0007] Tensor marca APT modelo metálico sin S'}, 
+    {
+        'id': 5388086, 
+        'product_id': [1499, '[SRV-CUA-0008] Servicio Instalación de clientes\n'], 
+        'name': '[SRV-CUA-0008] Servicio Instalación de clientes\n'}, 
+    {
+        'id': 5388087, 
+        'product_id': [4488, '[ROU-LNL-0013] ONU marca Lanly modelo G24A 4GE + WIFI (2.4 GHz + 5 GHz)'], 
+        'name': '[ROU-LNL-0013] ONU marca Lanly modelo G24A 4GE + WIFI (2.4 GHz + 5 GHz)'}, 
+    {
+        'id': 5388088, 
+        'product_id': [3159, '[PAT-APT-0011] Patch cord marca APT modelo SC/APC-SC/APC simplex 1mAPT-P0002'], 
+        'name': '[PAT-APT-0011] Patch cord marca APT modelo SC/APC-SC/APC simplex 1m APT-P0002'}
+]
