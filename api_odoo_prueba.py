@@ -23,8 +23,10 @@ print("User ID:", uid)
 
 # Conexión al servicio de modelos
 models = xmlrpc.client.ServerProxy('{}/xmlrpc/2/object'.format(url))
+
 # Archivo para almacenar los resultados
 archive = open("api_data.txt", "w")
+clientes_faltantes = open("clientes_faltantes.txt", "w")
 
 fecha_especifica = '2025-01-30'  # Formato 'YYYY-MM-DD'
 dominio = [
@@ -35,7 +37,6 @@ dominio = [
 
 # Obtener los registros que cumplen con el dominio
 record_ids = models.execute_kw(db, uid, password, 'account.move', 'search', [dominio])
-
 print("Total records found:", len(record_ids))
 
 # Especificar los campos que deseas obtener
@@ -49,38 +50,34 @@ fields_to_read = [
 if record_ids:
     count = 0
     for record_id in record_ids:
+        count += 1 #Corresponde con el numero de proceso
         print("--------------------------------------------------------------------------------------------------------------------")
         result_execute = models.execute_kw(db, uid, password, 'account.move', 'read', [[record_id]], {'fields': fields_to_read})
-        #print(record_id)
-        #print('Productos de la factura de: ' + str(result_execute[0]['invoice_partner_display_name']))
+
         # Escribe los resultados en el archivo
         archive.write("\n" + str(result_execute[0]))
 
         invoice_line_ids = result_execute[0]['invoice_line_ids']
-
+        partner_id = result_execute[0]['partner_id']
+        partner_data = models.execute_kw(db, uid, password, 'res.partner', 'read', [partner_id[0]], {'fields': ['phone', 'city', 'state_id', 'email']})
+      
         productos = [] #DEscomponer la estructura de productors e incluir solo el nombre....
         if invoice_line_ids:
             lines = models.execute_kw(db, uid, password, 'account.move.line', 'read', [invoice_line_ids], {'fields': ['product_id', 'name']}) #Lines es un arreglo que contiene diccionarios
-            #productos = lines
-            #print(productos)
-            #print(" - - - " + str(lines) + " - - - ")
-            #print("Invoice line IDs:", result_execute[0]['invoice_line_ids'])
             
             for line in lines:
                 #print(line['name'])
                 productos.append(line['name'])
                 #print(line)
-        
-        print(productos)
-        
+
         #Obtener el rif de la factura
         rif_cliente = result_execute[0]['rif']
         if rif_cliente == None:
             continue
 
-        datos = [result_execute[0], productos]
+        datos = [result_execute[0], productos, partner_data, count]
         ob_cliente = Cliente(datos)
-        ob_cliente.generar_borrador()
+        ob_cliente.generar_borrador(clientes_faltantes)
 else:
     print("No records found.")
 

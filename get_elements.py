@@ -70,7 +70,7 @@ def codigo_vendedor(diario): #Se realiza consulta a la base de datos para obtene
     elif "BANCO" in vendedor:
         return "00001"
     else:
-        return "0000X"
+        return "00001"
     
 
 def get_observaciones(fecha):
@@ -127,14 +127,13 @@ def get_tasa(tasa):
 
 def get_fecha(fecha_hora_str):
 
-        
         fecha_partes = fecha_hora_str.split(" ", 1) #se utiliza maxsplit=1 para evitar separar mas de dos elementos
 
         if fecha_partes is not None and len(fecha_partes) >= 1: #se verifica que el array tenga al menos un elemento
-            #fecha_str = fecha_partes[0]
-            #fecha = datetime.datetime.strptime(fecha_str, '%Y-%m-%d').strftime('%d/%m/%Y')
-            #fecha = fecha_partes[0]
-            fecha = "0-0-0"
+            fecha_str = fecha_partes[0]
+            fecha = datetime.datetime.strptime(fecha_str, '%Y-%m-%d').strftime('%d/%m/%Y')
+            fecha = fecha_partes[0]
+            #fecha = "0-0-0"
             return fecha
         
             

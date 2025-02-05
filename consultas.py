@@ -8,9 +8,6 @@ from operate_database import connection_database
 
 def consultar(id_cliente, libro_excel, monto_tasa, n_borrador, datos_cli): #Se le envia el id cliente de galac
         
-   
-        
-    
     rif = id_cliente.split("-")
     conn = connection_database()
     cur = conn.cursor()
@@ -20,11 +17,8 @@ def consultar(id_cliente, libro_excel, monto_tasa, n_borrador, datos_cli): #Se l
         cur.execute(query, (rif[0] + rif[1],))
         rows = cur.fetchall()
 
-
         if len(rows) > 0:
-            
             print(rows)
-
             # --- CAMPOS --- #
             tasa = monto_tasa
             borrador = "B-{:09d}".format(n_borrador) 
