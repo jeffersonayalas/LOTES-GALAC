@@ -9,7 +9,7 @@ from database import get_cliente
 class Borrador:
 
     #Campos requeridos: rif, tasa_dolar, diario, pagos (pagos con fecha), base imponible de la factura, descuento, campo_bs, iva, 
-    def __init__(self, rif_cliente, monto_tasa, info, cod_cliente):
+    def __init__(self, rif_cliente, monto_tasa, info, cod_cliente, counter_prod):
         self.info = info[0]
         self.products = info[1]
         self.n_proceso = info[3]
@@ -85,7 +85,7 @@ class Borrador:
         self.igtf_mon_local = 0
         self.igtf_mon_ext = 0
         self.alicuota_igtf = 3
-        self.descripcion = self.set_descripcion(self.products) #Campo descripcion en galac contiene es los prodcuto de la factura
+        self.descripcion = self.set_descripcion(self.products, counter_prod) #Campo descripcion en galac contiene es los prodcuto de la factura
         self.alicuota_iva = 'ALG'
         self.cantidad = 1
         self.precio_sin_iva = self.base_imponible
@@ -119,7 +119,6 @@ class Borrador:
         return 0
 
     def get_cod_borrador(self):
-
         if len(self.products) > 1:
             #se mantiene el codigo borrador para todos los producto
             return 0
@@ -216,8 +215,11 @@ class Borrador:
             self.cod_moneda_cobro
         ]
         #print(atributos)
+        
         arch = open("clientes_facturas.txt", "a")
-        arch.write("\n" + str(atributos))
+        for dato in atributos:
+            arch.write(str(dato) + "\t")
+        arch.write("\n")
         return atributos
 
 
@@ -235,10 +237,9 @@ class Borrador:
         else: ### EN DESARROLLO ###
             return self.base_imp_d_des * 0.16
         
-    def set_descripcion(self, lines_names):
+    def set_descripcion(self, lines_names, counter):
         description = ""
-        for line in lines_names:
-            description += line + ";"
+        description += lines_names[counter]
         return description
 
     def descuento():

@@ -106,7 +106,10 @@ class Cliente:
         
         #return atributos
         arch = open("clientes_faltantes.txt", "a")
-        arch.write("\n" + str(atributos))
+        for dato in atributos:
+            arch.write(str(dato) + "\t")
+        arch.write("\n")
+        
 
     def get_suscription(self):
         data = get_cliente(self.connect, self.rif) #Obtiene el codigo de galac dado el rif del cliente
@@ -119,12 +122,16 @@ class Cliente:
     def generar_borrador(self, document): #Se obtiene el rif de cliente para realizar la busqueda en la base de datos de Galac
        
         if self.suscription != False:
+            counter_prod = 0
+            #ar = open("clientes_facturas", "a")
             for prod in self.products_client:
-                #print(prod + "\n")
-                obj = Borrador(self.rif, 50.50, self.info_factura, self.suscription) #Se pasa el rif para obtener el objeto borrador con los campos correspondientes
+                obj = Borrador(self.rif, 50.50, self.info_factura, self.suscription, counter_prod) #Se pasa el rif para obtener el objeto borrador con los campos correspondientes
                 self.borradores.append(obj)
                 obj.get_cod_borrador()
                 obj.get_borrador()
+                counter_prod += 1
+                #ar.write("\n")
+                
         else:
             self.generate_data()
         

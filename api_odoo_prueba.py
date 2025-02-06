@@ -65,10 +65,15 @@ if record_ids:
         productos = [] #DEscomponer la estructura de productors e incluir solo el nombre....
         if invoice_line_ids:
             lines = models.execute_kw(db, uid, password, 'account.move.line', 'read', [invoice_line_ids], {'fields': ['product_id', 'name']}) #Lines es un arreglo que contiene diccionarios
-            
+            print(lines)
             for line in lines:
-                productos.append(line['name'])
-                print(line['name'])
+                prod = line['product_id'][1].replace("\n", " ")
+                productos.append(prod)
+                """ 
+                if '\n' in line['product_id'][1]:
+                    prod = line['product_id'][1].replace("\n", " ")
+                """
+                #print(line['product_id'][1])
                 
         #Obtener el rif de la factura
         rif_cliente = result_execute[0]['rif']
