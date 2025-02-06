@@ -27,6 +27,7 @@ models = xmlrpc.client.ServerProxy('{}/xmlrpc/2/object'.format(url))
 # Archivo para almacenar los resultados
 archive = open("api_data.txt", "w")
 clientes_faltantes = open("clientes_faltantes.txt", "w")
+clientes_facturas = open("clientes_facturas.txt", "w")
 
 fecha_especifica = '2025-01-30'  # Formato 'YYYY-MM-DD'
 dominio = [
@@ -66,10 +67,9 @@ if record_ids:
             lines = models.execute_kw(db, uid, password, 'account.move.line', 'read', [invoice_line_ids], {'fields': ['product_id', 'name']}) #Lines es un arreglo que contiene diccionarios
             
             for line in lines:
-                #print(line['name'])
                 productos.append(line['name'])
-                #print(line)
-
+                print(line['name'])
+                
         #Obtener el rif de la factura
         rif_cliente = result_execute[0]['rif']
         if rif_cliente == None:

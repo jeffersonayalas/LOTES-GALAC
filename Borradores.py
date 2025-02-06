@@ -216,6 +216,8 @@ class Borrador:
             self.cod_moneda_cobro
         ]
         #print(atributos)
+        arch = open("clientes_facturas.txt", "a")
+        arch.write("\n" + str(atributos))
         return atributos
 
 

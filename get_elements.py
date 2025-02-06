@@ -136,6 +136,20 @@ def get_fecha(fecha_hora_str):
             #fecha = "0-0-0"
             return fecha
         
+def get_rif(rif):
+    if rif != False:
+        rif_comp = rif.split("-")
+        return rif_comp[0] + rif_comp[1]
+    
+def get_nombre(nombre):
+    nombre_data = nombre.split("-")
+    if len(nombre_data) > 1:
+        return nombre_data[1].lstrip()
+    else:
+        return nombre_data[0].lstrip()
+
+
+        
             
     
     

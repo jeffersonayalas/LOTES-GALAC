@@ -155,12 +155,12 @@ def drop(conn):
 
 def get_cliente(conn, rif, tabla="contactos"): #Retorna los codigo de galac que corresponden a las suscripciones del cliente
     if rif != False:
-        rif_comp = rif.split("-")
+        #rif_comp = rif.split("-")
         #print(rif_comp)
         cur = conn.cursor()
         query = sql.SQL("SELECT cod_galac FROM {tabla} WHERE rif = %s;").format(tabla=sql.Identifier(tabla))
-        dat = rif_comp[0] + rif_comp[1]
-        cur.execute(query, (dat,))
+        #dat = rif_comp[0] + rif_comp[1]
+        cur.execute(query, (rif,))
         rows = cur.fetchone()
 
         if rows != None:
