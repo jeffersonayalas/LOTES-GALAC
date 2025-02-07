@@ -40,6 +40,7 @@ class Cliente:
         self.suscription = self.get_suscription()
         self.n_proceso = info_odoo[3]
 
+
         """
             codigo_cliente
             nombre
@@ -123,15 +124,12 @@ class Cliente:
        
         if self.suscription != False:
             counter_prod = 0
-            #ar = open("clientes_facturas", "a")
             for prod in self.products_client:
                 obj = Borrador(self.rif, 50.50, self.info_factura, self.suscription, counter_prod) #Se pasa el rif para obtener el objeto borrador con los campos correspondientes
                 self.borradores.append(obj)
                 obj.get_cod_borrador()
                 obj.get_borrador()
                 counter_prod += 1
-                #ar.write("\n")
-                
         else:
             self.generate_data()
         

@@ -1,35 +1,39 @@
-{
-    "title": "Menos pagos", 
+
+'invoice_payments_widget': 
+
+'{
+    "title": "Less Payment", 
     "outstanding": false, 
-    "content": 
-    [
+    "content": [
         {
-            "name": "Pago de cliente $\u00a046,00 - 20624 - FRIGORIFICO EL DIVINO NINO 372 CA - 27/12/2024", 
-            "journal_name": "LOS CAOBOS 02", 
-            "amount": 6.0, 
+            "name": "Customer Payment $\\u00a040,00 - 8374 - MARINES REYES RODRIGUEZ - 04/01/2025", 
+            "journal_name": "BANCO BANK OF AMERICA (BOFA PRINCIPAL / 898107330652)", 
+            "amount": 1.0, 
             "currency": "$", 
             "digits": [69, 2], 
             "position": "before", 
-            "date": "2024-12-27", 
-            "payment_id": 4817406, 
-            "partial_id": 748641, 
-            "account_payment_id": 348059, 
+            "date": "2025-01-04", 
+            "payment_id": 5048467, 
+            "partial_id": 892373, 
+            "account_payment_id": 371125, 
             "payment_method_name": "Manual", 
-            "move_id": 2037997, 
-            "ref": "LC-02/2024/12/0671 (00301580)"}, 
+            "move_id": 2128522, 
+            "ref": "BOF1/2025/01/0984 (Wfctoydrjnzm / Mariangeles Reyes / \\nDATOS INGRESADOS:\\n\\n                                            Monto: 40\\n\\n                                            Banco: ZELLE\\n\\n                                            Fecha: 04/01/2025\\n)"
+        }, 
         {
-            "name": "Pago de cliente $\u00a035,00 - 20624 - FRIGORIFICO EL DIVINO NINO 372 CA - 22/01/2025", 
-            "journal_name": "LOS CAOBOS 01", 
-            "amount": 34.0, 
+            "name": "Customer Payment $\\u00a040,00 - 8374 - MARINES REYES RODRIGUEZ - 30/01/2025", 
+            "journal_name": "BANCO BANK OF AMERICA (BOFA PRINCIPAL / 898107330652)", 
+            "amount": 39.0, 
             "currency": "$", 
             "digits": [69, 2], 
             "position": "before", 
-            "date": "2025-01-22", 
-            "payment_id": 5332032, 
-            "partial_id": 859599, 
-            "account_payment_id": 395310, 
+            "date": "2025-01-30", 
+            "payment_id": 5556389, 
+            "partial_id": 892374, 
+            "account_payment_id": 413507, 
             "payment_method_name": "Manual", 
-            "move_id": 2238675, 
-            "ref": "LC-01/2025/01/0634 (00301585)"}
-    ]
-}
+            "move_id": 2320664, 
+            "ref": "BOF1/2025/01/3171 (WFCTOYGZ2M7R / Mariangeles Reyes / \\nDATOS INGRESADOS:\\n\\n                                            Monto: 40\\n\\n                                            Banco: ZELLE\\n\\n                                            Fecha: 30/01/2025\\n)"
+        }
+    ]}
+'

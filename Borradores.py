@@ -5,11 +5,15 @@ import datetime
 import pandas as pd
 from operate_database import connection_database
 from database import get_cliente
+import json
+import datetime
+import xmlrpc.client
 
 class Borrador:
 
     #Campos requeridos: rif, tasa_dolar, diario, pagos (pagos con fecha), base imponible de la factura, descuento, campo_bs, iva, 
     def __init__(self, rif_cliente, monto_tasa, info, cod_cliente, counter_prod):
+        self.api_data = info[4]
         self.info = info[0]
         self.products = info[1]
         self.n_proceso = info[3]
@@ -98,9 +102,10 @@ class Borrador:
         self.campo_extra_2 = ""
         self.codigo_articulo = str(get_art(self.descripcion))
         self.cod_moneda = "VED"
-        self.cod_moneda_cobro = "BOLIVARES"    
+        self.cod_moneda_cobro = "BOLIVARES"   
+        self.widget_pagos = self.info["invoice_payments_widget"]
+        self.pagos = ""
 
-       
     def search_client(self): #Se obtiene el rif de cliente para realizar la busqueda en la base de datos de Galac
         connect = connection_database()
         suscripciones = get_cliente(connect, self.rif) #ALmacena los codigos obtenidos de galac
@@ -113,6 +118,103 @@ class Borrador:
             return suscripciones
         else: 
             return None
+        
+    #Esta funcion re ejecuta solo con clientes con montos en divisas
+    def process_payment(self):
+        url = self.api_data.get('url')
+        db = self.api_data.get('db')
+        username = self.api_data.get('username')
+        api_key = self.api_data.get('api_key')
+        password = self.api_data.get('password')
+
+        montos = []
+
+        process_data = open("process_payment.txt", 'a')
+        process_data.write("\n###########################################################################################################")
+        
+        common = xmlrpc.client.ServerProxy('{}/xmlrpc/2/common'.format(url))
+        uid = common.authenticate(db, username, password, {})
+        models = xmlrpc.client.ServerProxy('{}/xmlrpc/2/object'.format(url))
+
+
+        #print(type(self.widget_pagos))
+        # Verifica si self.widget_pagos no es un booleano
+        if self.widget_pagos != 'false':
+            # Verifica el contenido de invoice_payments_widget
+            if isinstance(self.info.get("invoice_payments_widget"), str):
+                try:
+                    self.pagos = json.loads(self.info["invoice_payments_widget"])["content"]
+                    # Asegúrate de que 'content' realmente esté en self.pagos
+                    if isinstance(self.pagos, list):  # Verifica que sea una lista
+                        for pay in self.pagos:
+                            name_payment = pay.get('name', 'Sin nombre')
+                            diary = pay.get('journal_name', 'Sin diario')
+                            amount = pay.get('amount', 0)
+                            currency = pay.get('currency', 'Sin moneda')
+                            date = pay.get('date', 'Sin fecha')
+                            payment_id = pay.get('payment_id', 'Sin ID de pago')
+                            payment_method = pay.get('payment_method_name', 'Sin método de pago')
+                            move_id = pay.get('move_id', 'Sin ID de movimiento')
+                            ref = pay.get('ref', 'Sin referencia').replace("\\n", "").replace("\n", "")
+                            print(type(ref))
+                            process_data.write(f"\n- - - - - Nombre: {name_payment} Diario: {diary} Monto de pago: {amount} Moneda: {currency} Fecha: {date} ID de pago: {payment_id} Método de pago: {payment_method} ID de factura: {move_id} Referencia de pago: {ref} - - - - -")
+                            
+                            currency_code = 'VES' 
+                            #Determinar montos totales (se realiza consulta de la tasa a traves de API)
+                            currency_id = models.execute_kw(db, uid, password, 'res.currency', 'search', [[('name', '=', currency_code)]])
+                            montos.append(amount)
+
+                            consulta_fecha = date
+                            print(consulta_fecha)
+                            if currency_id:
+                                # 1. Intentar obtener la tasa de cambio para la fecha específica
+                                rate = models.execute_kw(
+                                    db,
+                                    uid,
+                                    password,
+                                    'res.currency.rate',
+                                    'search_read',
+                                    [[
+                                        ('currency_id', '=', currency_id[0]),
+                                        ('name', '=', consulta_fecha)  # Buscar por la fecha exacta
+                                    ]],
+                                    {'fields': ['name', 'rate', 'currency_id']}
+                                )
+
+                                if rate:
+                                    # Se encontró la tasa para la fecha específica
+                                    print(rate)
+                                    print(f"Fecha: {rate[0]['name']}, Tasa: {rate[0]['currency_id']}")
+                                else:
+                                    # 2. Si no encuentra, buscar la fecha más cercana anterior
+                                    nearest_rate = models.execute_kw(
+                                        db,
+                                        uid,
+                                        password,
+                                        'res.currency.rate',
+                                        'search_read',
+                                        [[
+                                            ('currency_id', '=', currency_id[0]),
+                                            ('name', '<', consulta_fecha)  # Buscar la fecha más cercana anterior
+                                        ]],
+                                        {'fields': ['name', 'rate', 'currency_id'], 'limit': 1}  # Mueve 'limit' aquí en el diccionario de opciones
+                                    )
+
+                                    if nearest_rate:
+                                        print(f"No se encontró la tasa para la fecha {consulta_fecha}. Se usará la tasa más cercana anterior.")
+                                        print(f"Fecha: {nearest_rate[0]['name']}, Tasa: {nearest_rate[0]['rate']}")
+                                    else:
+                                        print("No se encontró ninguna tasa de cambio disponible para la moneda.")
+                            else:
+                                print("No se encontró ninguna moneda con ese código.")
+
+                    else:
+                        print("El contenido no es una lista válida.")
+                except json.JSONDecodeError:
+                    print("Error al decodificar JSON. Asegúrate de que el formato sea correcto.")
+            else:
+                print("El valor de invoice_payments_widget no es un string válido.")
+        
 
     def generate_data(self, codigo_cliente):
         cod_borrador = codigo_cliente
@@ -124,10 +226,9 @@ class Borrador:
             return 0
 
     
-    import datetime
-
     def get_borrador(self):
         self.fecha_format = datetime.datetime.strptime(self.info['invoice_date'], '%Y-%m-%d').strftime('%d/%m/%Y')
+        self.process_payment()
         
         # Crear lista de atributos
         atributos = [
@@ -214,14 +315,12 @@ class Borrador:
             self.codigo_articulo,
             self.cod_moneda_cobro
         ]
-        #print(atributos)
         
         arch = open("clientes_facturas.txt", "a")
         for dato in atributos:
             arch.write(str(dato) + "\t")
         arch.write("\n")
         return atributos
-
 
     def pagos(self):
         return None
