@@ -121,11 +121,10 @@ class Cliente:
           
 
     def generar_borrador(self, document): #Se obtiene el rif de cliente para realizar la busqueda en la base de datos de Galac
-       
         if self.suscription != False:
             counter_prod = 0
             for prod in self.products_client:
-                obj = Borrador(self.rif, 50.50, self.info_factura, self.suscription, counter_prod) #Se pasa el rif para obtener el objeto borrador con los campos correspondientes
+                obj = Borrador(self.rif, 50.50, self.info_factura, self.suscription, counter_prod, ) #Se pasa el rif para obtener el objeto borrador con los campos correspondientes
                 self.borradores.append(obj)
                 obj.get_cod_borrador()
                 obj.get_borrador()
