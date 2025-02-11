@@ -7,12 +7,12 @@ from operate_database import connection_database
 from database import get_cliente
 import json
 import datetime
-import xmlrpc.client
+
 
 class Borrador:
 
     #Campos requeridos: rif, tasa_dolar, diario, pagos (pagos con fecha), base imponible de la factura, descuento, campo_bs, iva, 
-    def __init__(self, rif_cliente, monto_tasa, info, cod_cliente, counter_prod):
+    def __init__(self, rif_cliente, info, cod_cliente, counter_prod):
         self.api_data = info[4]
         self.info = info[0]
         self.products = info[1]
@@ -22,7 +22,7 @@ class Borrador:
         self.rif = rif_cliente
         self.cod_galac = cod_cliente
         self.borrador = self.cod_galac
-        self.tasa = monto_tasa
+        self.tasa = 50
         self.vendedor = codigo_vendedor(self.info['journal_id'])
         self.fecha_format = self.info['invoice_date']
         self.observaciones = get_observaciones(self.fecha_format)
@@ -123,7 +123,6 @@ class Borrador:
         
     #Esta funcion re ejecuta solo con clientes con montos en divisas
     
-
     def generate_data(self, codigo_cliente):
         cod_borrador = codigo_cliente
         return 0
@@ -134,100 +133,18 @@ class Borrador:
             return 0
         
     def process_payment(self):
-        url = self.api_data.get('url')
-        db = self.api_data.get('db')
-        username = self.api_data.get('username')
-        api_key = self.api_data.get('api_key')
-        password = self.api_data.get('password')
-
-        montos = []
-
         process_data = open("process_payment.txt", 'a')
-        process_data.write("\n###########################################################################################################")
+        if self.info_pagos != None:
+            print("CLIENTE: ", str(self.info['invoice_partner_display_name']) + "******************************************")
+            print(self.info_pagos)
+        else: 
+            print("CLIENTE: ", str(self.info['invoice_partner_display_name']) + "******************************************")
+            print("- - - - CLIENTE POSIBLEMENTE TIENE DESCUENTO - - - -")
+        process_data.write(str(self.info_pagos) + "\n")
         
-        common = xmlrpc.client.ServerProxy('{}/xmlrpc/2/common'.format(url))
-        uid = common.authenticate(db, username, password, {})
-        models = xmlrpc.client.ServerProxy('{}/xmlrpc/2/object'.format(url))
-        self.pagos = self.info_pagos
-       
-        for pay in self.pagos:
-            name_payment = pay.get('name', 'Sin nombre')
-            diary = pay.get('journal_name', 'Sin diario')
-            amount = pay.get('amount', 0)
-            currency = pay.get('currency', 'Sin moneda')
-            date = pay.get('date', 'Sin fecha')
-            payment_id = pay.get('payment_id', 'Sin ID de pago')
-            payment_method = pay.get('payment_method_name', 'Sin método de pago')
-            move_id = pay.get('move_id', 'Sin ID de movimiento')
-            ref = pay.get('ref', 'Sin referencia').replace("\\n", "").replace("\n", "")
-            
-            print(type(ref))
-
-            process_data.write(f"\n- - - - - Nombre: {name_payment} Diario: {diary} Monto de pago: {amount} "
-                            f"Moneda: {currency} Fecha: {date} ID de pago: {payment_id} "
-                            f"Método de pago: {payment_method} ID de factura: {move_id} "
-                            f"Referencia de pago: {ref} - - - - -")
-
-            currency_code = 'VES'
-
-            # Determinar montos totales (se realiza consulta de la tasa a través de API)
-            currency_id = models.execute_kw(db, uid, password, 'res.currency', 'search', [[('name', '=', currency_code)]])
-            montos.append(amount)
-
-            consulta_fecha = date
-            print(consulta_fecha)
-
-            if currency_id:
-                # 1. Intentar obtener la tasa de cambio para la fecha específica
-                rate = models.execute_kw(
-                    db,
-                    uid,
-                    password,
-                    'res.currency.rate',
-                    'search_read',
-                    [[
-                        ('currency_id', '=', currency_id[0]),
-                        ('name', '=', consulta_fecha)  # Buscar por la fecha exacta
-                    ]],
-                    {'fields': ['name', 'company_rate', 'currency_id']}
-                )
-
-                if rate:
-                    # Se encontró la tasa para la fecha específica
-                    print(rate)
-                    print(f"Fecha: {rate[0]['name']}, Tasa: {rate[0]['company_rate']}")
-                else:
-                    # 2. Si no encuentra, buscar la fecha más cercana anterior
-                    nearest_rate = models.execute_kw(
-                        db,
-                        uid,
-                        password,
-                        'res.currency.rate',
-                        'search_read',
-                        [[
-                            ('currency_id', '=', currency_id[0]),
-                            ('name', '<', consulta_fecha)  # Buscar la fecha más cercana anterior
-                        ]],
-                        {'fields': ['name', 'company_rate', 'currency_id'], 'limit': 1}  # Mueve 'limit' aquí en el diccionario de opciones
-                    )
-
-                    if nearest_rate:
-                        print(f"No se encontró la tasa para la fecha {consulta_fecha}. Se usará la tasa más cercana anterior.")
-                        print(f"Fecha: {nearest_rate[0]['name']}, Tasa: {nearest_rate[0]['company_rate']}")
-                    else:
-                        print("No se encontró ninguna tasa de cambio disponible para la moneda.")
-            else:
-                print("No se encontró ninguna moneda con ese código.")
-                    
-
-
-        
-        return 0
-
-    
     def get_borrador(self):
         self.fecha_format = datetime.datetime.strptime(self.info['invoice_date'], '%Y-%m-%d').strftime('%d/%m/%Y')
-        #self.process_payment()
+        self.process_payment()
         
         # Crear lista de atributos
         atributos = [

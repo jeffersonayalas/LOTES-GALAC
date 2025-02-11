@@ -124,15 +124,15 @@ class Cliente:
         if self.suscription != False:
             counter_prod = 0
             for prod in self.products_client:
-                obj = Borrador(self.rif, 50.50, self.info_factura, self.suscription, counter_prod, ) #Se pasa el rif para obtener el objeto borrador con los campos correspondientes
+                obj = Borrador(self.rif, self.info_factura, self.suscription, counter_prod) #Se pasa el rif para obtener el objeto borrador con los campos correspondientes
                 self.borradores.append(obj)
-                obj.get_cod_borrador()
-                obj.get_borrador()
+                obj.get_cod_borrador() #REVISAR
+                obj.get_borrador() 
                 counter_prod += 1
         else:
+            #Se realiza llamada a funcion para crear el cliente 
             self.generate_data()
         
-
     def get_phone(self, info_odoo):
         telefono = info_odoo[2][0]["phone"]
         if telefono != False:
