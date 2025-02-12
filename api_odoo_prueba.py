@@ -135,6 +135,9 @@ def api_data():
             datos = [result_execute[0], productos, partner_data, count, data_db, pagos]
             create_clients(datos)
             print('Numero de clientes procesados:  ' + str(count))
+            process_data = open("process_payment.txt", 'a')
+            process_data.write(str(pagos) + "\n")
+            #print(pagos)
     else:
         print("No records found.")
     archive.close()  # Asegúrate de cerrar el archivo después de usarlo

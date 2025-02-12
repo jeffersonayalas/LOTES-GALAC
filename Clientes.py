@@ -39,6 +39,8 @@ class Cliente:
         self.borradores = [] 
         self.suscription = self.get_suscription()
         self.n_proceso = info_odoo[3]
+        self.info_pagos = info_odoo[5] #Arreglo que contiene un diccionario por cada pago encontrado
+        
 
 
         """
@@ -110,17 +112,10 @@ class Cliente:
         for dato in atributos:
             arch.write(str(dato) + "\t")
         arch.write("\n")
-        
-
-    def get_suscription(self):
-        data = get_cliente(self.connect, self.rif) #Obtiene el codigo de galac dado el rif del cliente
-        if data != None:
-            return data[0]
-        else:  
-            return False #Si no se obtiene resultado quiere decir que el cliente no existe, por lo tanto se debe crear (Se hace llamada a funcion que obtiene el ultimo codigo registrado en galac)
-          
-
+    
     def generar_borrador(self, document): #Se obtiene el rif de cliente para realizar la busqueda en la base de datos de Galac
+        #Se deben desglosar los montos al momento de enviarlos al borrador 
+        self.process_payment()
         if self.suscription != False:
             counter_prod = 0
             for prod in self.products_client:
@@ -133,6 +128,34 @@ class Cliente:
             #Se realiza llamada a funcion para crear el cliente 
             self.generate_data()
         
+    def process_payment(self):
+        base_imponible_desc = 0
+        moneda = ''
+        pay_one = self.info_pagos
+
+        
+        for pay in self.info_pagos:
+            if "\xa0Bs" in pay['name']:
+                monto_pago = pay['amount']
+                rate = pay['rate']
+                base_imponible_desc += pay['amount'] * rate
+                moneda = "Bs"
+            else:
+                monto_pago = pay['amount']
+                rate = pay['rate']
+                base_imponible_desc += monto_pago * rate
+                moneda = "Bs"
+        
+        print("\nPAGOS DEL CLIENTE: " + str(pay_one) + "BASE IMPONIBLE PARA FACTURA: " +str(base_imponible_desc) + " " + str(moneda))
+
+    def get_suscription(self):
+        data = get_cliente(self.connect, self.rif) #Obtiene el codigo de galac dado el rif del cliente
+        if data != None:
+            return data[0]
+        else:  
+            return False #Si no se obtiene resultado quiere decir que el cliente no existe, por lo tanto se debe crear (Se hace llamada a funcion que obtiene el ultimo codigo registrado en galac)
+          
+    
     def get_phone(self, info_odoo):
         telefono = info_odoo[2][0]["phone"]
         if telefono != False:

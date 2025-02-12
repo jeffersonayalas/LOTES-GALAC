@@ -132,20 +132,11 @@ class Borrador:
             #se mantiene el codigo borrador para todos los producto
             return 0
         
-    def process_payment(self):
-        process_data = open("process_payment.txt", 'a')
-        if self.info_pagos != None:
-            print("CLIENTE: ", str(self.info['invoice_partner_display_name']) + "******************************************")
-            print(self.info_pagos)
-        else: 
-            print("CLIENTE: ", str(self.info['invoice_partner_display_name']) + "******************************************")
-            print("- - - - CLIENTE POSIBLEMENTE TIENE DESCUENTO - - - -")
-        process_data.write(str(self.info_pagos) + "\n")
+   
         
     def get_borrador(self):
         self.fecha_format = datetime.datetime.strptime(self.info['invoice_date'], '%Y-%m-%d').strftime('%d/%m/%Y')
-        self.process_payment()
-        
+
         # Crear lista de atributos
         atributos = [
             self.cod_borrador,
