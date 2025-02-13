@@ -12,23 +12,27 @@ import datetime
 class Borrador:
 
     #Campos requeridos: rif, tasa_dolar, diario, pagos (pagos con fecha), base imponible de la factura, descuento, campo_bs, iva, 
-    def __init__(self, rif_cliente, info, cod_cliente, counter_prod):
+    def __init__(self, info, cod_cliente, counter_prod):
+        
+        self.base_imponible = info[5][-1] #En divisas
+
+        #self.base_imponible = info[0]['amount_untaxed']
         self.api_data = info[4]
         self.info = info[0]
         self.products = info[1]
         self.n_proceso = info[3]
-
+        
         self.cod_borrador = "B-{:09d}".format(self.n_proceso) 
-        self.rif = rif_cliente
+        self.rif = info[0]['rif'].replace('-', '')
         self.cod_galac = cod_cliente
         self.borrador = self.cod_galac
-        self.tasa = 50
         self.vendedor = codigo_vendedor(self.info['journal_id'])
         self.fecha_format = self.info['invoice_date']
         self.observaciones = get_observaciones(self.fecha_format)
-        self.base_imponible = self.info['amount_untaxed'] #En divisas
+       
         self.por_desc = 0
-        self.descuento = int((self.por_desc/100) * self.base_imponible) 
+        
+        self.descuento = (self.por_desc/100) * self.base_imponible
         self.monto_exento_descuento = self.descuento
         self.base_imp_d_des = self.base_imponible - self.descuento
         self.total_renglones = self.base_imponible

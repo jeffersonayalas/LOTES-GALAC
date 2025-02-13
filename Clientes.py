@@ -1,6 +1,6 @@
 from operate_database import connection_database
 from database import get_cliente
-from get_elements import codigo_vendedor, get_rif, get_nombre
+from get_elements import codigo_vendedor, get_nombre
 from Borradores import *
 import datetime
 
@@ -9,7 +9,7 @@ class Cliente:
     def __init__(self, info_odoo): #data es un diccionario que contiene los campos de factura obtenidos de odoo
         self.connect = connection_database()
         self.nombre = get_nombre(info_odoo[0]['invoice_partner_display_name'])
-        self.rif = get_rif(info_odoo[0]['rif'])
+        self.rif = info_odoo[0]['rif'].replace('-', '')
         self.nit = "" #No se utiliza en netcom por lo tanto va vacio
         self.cuenta_contable_cxc = ""
         self.c_contable_ingresos = ""
@@ -35,14 +35,16 @@ class Cliente:
         self.fecha_creacion = datetime.datetime.strptime(info_odoo[0]['invoice_date'], '%Y-%m-%d').strftime('%d/%m/%Y')
         
         self.products_client = info_odoo[1] #Se guarda un arreglo con las suscripciones (Codigo de Galac)
-        self.info_factura = info_odoo
+        
         self.borradores = [] 
         self.suscription = self.get_suscription()
         self.n_proceso = info_odoo[3]
-        self.info_pagos = info_odoo[5] #Arreglo que contiene un diccionario por cada pago encontrado
+        self.pagos = info_odoo[5]
+        self.info_pagos = self.process_payment() #Arreglo que contiene un diccionario por cada pago encontrado
         
-
-
+        self.info_factura = info_odoo
+        self.info_factura[5] = self.info_pagos
+        #print(info_odoo)
         """
             codigo_cliente
             nombre
@@ -115,11 +117,11 @@ class Cliente:
     
     def generar_borrador(self, document): #Se obtiene el rif de cliente para realizar la busqueda en la base de datos de Galac
         #Se deben desglosar los montos al momento de enviarlos al borrador 
-        self.process_payment()
+        
         if self.suscription != False:
             counter_prod = 0
             for prod in self.products_client:
-                obj = Borrador(self.rif, self.info_factura, self.suscription, counter_prod) #Se pasa el rif para obtener el objeto borrador con los campos correspondientes
+                obj = Borrador(self.info_factura, self.suscription, counter_prod) #Se pasa el rif para obtener el objeto borrador con los campos correspondientes
                 self.borradores.append(obj)
                 obj.get_cod_borrador() #REVISAR
                 obj.get_borrador() 
@@ -128,25 +130,26 @@ class Cliente:
             #Se realiza llamada a funcion para crear el cliente 
             self.generate_data()
         
+        
     def process_payment(self):
         base_imponible_desc = 0
         moneda = ''
-        pay_one = self.info_pagos
-
         
-        for pay in self.info_pagos:
-            if "\xa0Bs" in pay['name']:
-                monto_pago = pay['amount']
-                rate = pay['rate']
-                base_imponible_desc += pay['amount'] * rate
-                moneda = "Bs"
-            else:
+        if self.pagos != 0:
+            for pay in self.pagos:
                 monto_pago = pay['amount']
                 rate = pay['rate']
                 base_imponible_desc += monto_pago * rate
                 moneda = "Bs"
+                self.pagos.append(round(base_imponible_desc,2))
+            return self.pagos.append(round(base_imponible_desc,2))
+        else:
+            return [base_imponible_desc]
         
-        print("\nPAGOS DEL CLIENTE: " + str(pay_one) + "BASE IMPONIBLE PARA FACTURA: " +str(base_imponible_desc) + " " + str(moneda))
+        base_imponible_desc = round(base_imponible_desc, 2)
+        return base_imponible_desc
+
+        #print("\nPAGOS DEL CLIENTE: " + str(pay_one) + "BASE IMPONIBLE PARA FACTURA: " +str(base_imponible_desc) + " " + str(moneda))
 
     def get_suscription(self):
         data = get_cliente(self.connect, self.rif) #Obtiene el codigo de galac dado el rif del cliente

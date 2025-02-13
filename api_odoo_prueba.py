@@ -146,7 +146,9 @@ def cons_payments(info_pagos, models, data_db, uid):
     pay_id = info_pagos
     db = data_db['db']
     api_key = data_db['api_key']
-    pay_content = "None"
+    pay_content = 0
+    #print(pay_id)
+
     
     if pay_id != 'false':
         pagos = json.loads(pay_id)
