@@ -43,8 +43,10 @@ def api_data():
     models = xmlrpc.client.ServerProxy('{}/xmlrpc/2/object'.format(url))
 
     fecha_especifica = '2025-01-30'  # Formato 'YYYY-MM-DD'
+    fecha_fin = '2025-01-30'
     dominio = [
-        ('invoice_date', '=', fecha_especifica),  # Filtro por fecha específica
+        ('invoice_date', '>=', fecha_especifica),  # Filtro por fecha específica
+        ('invoice_date', '<=', fecha_fin),
         ('payment_state', '=', 'paid'),# Filtro por estado pagado
         ('move_type', '=', 'out_invoice')
     ]
@@ -132,12 +134,15 @@ def api_data():
                 'TOCUYITO 02'
             ]
             pagos = cons_payments(result_execute[0]["invoice_payments_widget"], models, data_db, uid) #Pagos puedes ser (un arreglo de diccionarios o None)
-            datos = [result_execute[0], productos, partner_data, count, data_db, pagos]
+            print(len(result_execute[0]))
+            result_execute[0]['invoice_payments_widget'] = pagos
+            print(result_execute[0])
+            datos = [result_execute[0], productos, partner_data, count, data_db] #Ajustar el arreglo de productos para que vaya dentro de la informacion de las facturas
             create_clients(datos)
+            #print(result_execute[0])
             print('Numero de clientes procesados:  ' + str(count))
             process_data = open("process_payment.txt", 'a')
             process_data.write(str(pagos) + "\n")
-            #print(pagos)
     else:
         print("No records found.")
     archive.close()  # Asegúrate de cerrar el archivo después de usarlo
@@ -146,10 +151,10 @@ def cons_payments(info_pagos, models, data_db, uid):
     pay_id = info_pagos
     db = data_db['db']
     api_key = data_db['api_key']
-    pay_content = 0
+    pay_content = [None]
     #print(pay_id)
 
-    
+    #Si el pago es diferente de false se retorna el contenido encontrado, de los contrario se retorna 0, por lo tanto datos[5] = 0 (pay_content = None)
     if pay_id != 'false':
         pagos = json.loads(pay_id)
         pay_content = pagos['content']  # Un arreglo de diccionarios
@@ -191,7 +196,7 @@ def cons_payments(info_pagos, models, data_db, uid):
         else:
             print("No se encontró ninguna moneda con ese código.")
     #print(pay_content)
-    return pay_content
+    return pay_content #Se retorna contenido de pago ()
 
 def create_clients(info_client):
     #Recorremos los pagos del cliente para ver si todos son en bs o en dolares

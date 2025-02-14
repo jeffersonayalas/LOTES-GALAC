@@ -13,8 +13,9 @@ class Borrador:
 
     #Campos requeridos: rif, tasa_dolar, diario, pagos (pagos con fecha), base imponible de la factura, descuento, campo_bs, iva, 
     def __init__(self, info, cod_cliente, counter_prod):
+        #print(info[0]['invoice_payments_widget'])
         
-        self.base_imponible = info[5][-1] #En divisas
+        self.base_imponible = info[0]['invoice_payment_widget'][-1] #En divisas
 
         #self.base_imponible = info[0]['amount_untaxed']
         self.api_data = info[4]
@@ -26,7 +27,7 @@ class Borrador:
         self.rif = info[0]['rif'].replace('-', '')
         self.cod_galac = cod_cliente
         self.borrador = self.cod_galac
-        self.vendedor = codigo_vendedor(self.info['journal_id'])
+        self.vendedor = self.get_vendedor()
         self.fecha_format = self.info['invoice_date']
         self.observaciones = get_observaciones(self.fecha_format)
        
@@ -108,8 +109,8 @@ class Borrador:
         self.cod_moneda = "VED"
         self.cod_moneda_cobro = "BOLIVARES"   
         self.widget_pagos = self.info["invoice_payments_widget"]
-        self.info_pagos = info[5]
-        self.pagos = ""
+        #self.info_pagos = info[5]
+        #self.pagos = ""
 
 
     def search_client(self): #Se obtiene el rif de cliente para realizar la busqueda en la base de datos de Galac
@@ -130,13 +131,18 @@ class Borrador:
     def generate_data(self, codigo_cliente):
         cod_borrador = codigo_cliente
         return 0
+    
+    def get_vendedor(self):
+        #print(self.info['invoice_payments_widget'])
+        if self.info['invoice_payments_widget'][0] != None:
+            #diario_inicial = self.info['invoice_payments_widget']['content'][0]['journal_name']
+            #print(diario_inicial)
+            return 0
 
     def get_cod_borrador(self):
         if len(self.products) > 1:
             #se mantiene el codigo borrador para todos los producto
             return 0
-        
-   
         
     def get_borrador(self):
         self.fecha_format = datetime.datetime.strptime(self.info['invoice_date'], '%Y-%m-%d').strftime('%d/%m/%Y')
