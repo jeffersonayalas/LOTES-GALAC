@@ -15,7 +15,7 @@ class Borrador:
     def __init__(self, info, cod_cliente, counter_prod):
         #print(info[0]['invoice_payments_widget'])
         
-        self.base_imponible = info[0]['invoice_payment_widget'][-1] #En divisas
+        self.base_imponible = info[0]['invoice_payments_widget'][-1] #En divisas
 
         #self.base_imponible = info[0]['amount_untaxed']
         self.api_data = info[4]

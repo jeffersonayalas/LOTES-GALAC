@@ -1,6 +1,8 @@
 import xmlrpc.client
 from Clientes import Cliente
 import json
+from database import get_cliente
+from operate_database import connection_database
 
 archive = open("api_data.txt", "w")
 clientes_faltantes = open("clientes_faltantes.txt", "w")
@@ -8,11 +10,7 @@ clientes_facturas = open("clientes_facturas.txt", "w")
 process_data = open("process_payment.txt", "w")
 diarios_pagos = open('diarios_pagos.txt', 'w')
 
-
-
-
-def api_data():
-    data_db = {
+data_db = {
         'url' : 'https://netcomplus.odoo.com',  # Cambia por la URL de tu servidor
         'db' : 's2ctechsoporte-netcom-main-7643792',
         'username' : 'desarrollo@netcomplusve.com',
@@ -20,12 +18,15 @@ def api_data():
         'password' : 'python24'  # Este podría no ser necesario si estás usando el API Key
     }
 
-    url = data_db.get('url')
-    db = data_db.get('db')
-    username = data_db.get('username')
-    api_key = data_db.get('api_key')
-    password = data_db.get('password')
+url = data_db.get('url')
+db = data_db.get('db')
+username = data_db.get('username')
+api_key = data_db.get('api_key')
+password = data_db.get('password')
 
+#recibe tipo de operacion y realiza una accion de acuerdo a ese tipo
+def api_data(operation_type, fecha):
+    
     #Creamos una lista para almacenar clientes
     clientes = []
     info = []
@@ -42,11 +43,10 @@ def api_data():
     # Conexión al servicio de modelos
     models = xmlrpc.client.ServerProxy('{}/xmlrpc/2/object'.format(url))
 
-    fecha_especifica = '2025-01-30'  # Formato 'YYYY-MM-DD'
+    fecha_especifica = fecha  # Formato 'YYYY-MM-DD'
     fecha_fin = '2025-01-30'
     dominio = [
         ('invoice_date', '>=', fecha_especifica),  # Filtro por fecha específica
-        ('invoice_date', '<=', fecha_fin),
         ('payment_state', '=', 'paid'),# Filtro por estado pagado
         ('move_type', '=', 'out_invoice')
     ]
@@ -133,13 +133,19 @@ def api_data():
                 'TOCUYITO 01',
                 'TOCUYITO 02'
             ]
-            pagos = cons_payments(result_execute[0]["invoice_payments_widget"], models, data_db, uid) #Pagos puedes ser (un arreglo de diccionarios o None)
-            print(len(result_execute[0]))
+
+            pagos = cons_payments(result_execute[0]["invoice_payments_widget"], models, data_db, uid)
+            if pagos == None:
+                continue
+
             result_execute[0]['invoice_payments_widget'] = pagos
-            print(result_execute[0])
             datos = [result_execute[0], productos, partner_data, count, data_db] #Ajustar el arreglo de productos para que vaya dentro de la informacion de las facturas
-            create_clients(datos)
-            #print(result_execute[0])
+            
+            if operation_type == 1:
+                fact_operation(datos)
+            else:
+                create_clients(datos)
+
             print('Numero de clientes procesados:  ' + str(count))
             process_data = open("process_payment.txt", 'a')
             process_data.write(str(pagos) + "\n")
@@ -147,13 +153,11 @@ def api_data():
         print("No records found.")
     archive.close()  # Asegúrate de cerrar el archivo después de usarlo
 
-def cons_payments(info_pagos, models, data_db, uid):
-    pay_id = info_pagos
-    db = data_db['db']
-    api_key = data_db['api_key']
-    pay_content = [None]
-    #print(pay_id)
 
+def cons_payments(info_pagos, models, data_db, uid):
+    
+    pay_id = info_pagos
+    
     #Si el pago es diferente de false se retorna el contenido encontrado, de los contrario se retorna 0, por lo tanto datos[5] = 0 (pay_content = None)
     if pay_id != 'false':
         pagos = json.loads(pay_id)
@@ -193,14 +197,25 @@ def cons_payments(info_pagos, models, data_db, uid):
                         pay['rate'] = nearest_rate[0]['company_rate']
                     else:
                         print(f"No se encontró ninguna tasa de cambio disponible para la moneda en la fecha {consulta_fecha}.")
+            return pay_content #Se retorna contenido de pago ()
         else:
             print("No se encontró ninguna moneda con ese código.")
-    #print(pay_content)
-    return pay_content #Se retorna contenido de pago ()
+    else:
+        return None
+   
 
-def create_clients(info_client):
+
+def fact_operation(info_client):
     #Recorremos los pagos del cliente para ver si todos son en bs o en dolares
     ob_cliente = Cliente(info_client)
     ob_cliente.generar_borrador(clientes_faltantes)
 
-api_data()
+def create_clients(info_client):
+    ob_cliente = Cliente(info_client)
+    connect = connection_database()
+    rif = ob_cliente.rif
+    suscription = get_cliente(connect, rif)
+    if suscription == None:
+        ob_cliente.generate_data()
+
+#api_data()

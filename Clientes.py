@@ -39,11 +39,13 @@ class Cliente:
         self.borradores = [] 
         self.suscription = self.get_suscription()
         self.n_proceso = info_odoo[3]
+       
 
-        self.pagos = self.info[0]['invoice_payment_widget']
+        self.pagos = self.info[0]['invoice_payments_widget']
+        print(type(self.pagos))
 
 
-        self.info[0]['invoice_payment_widget'].append(self.process_payment()) #Arreglo que contiene los pagos
+        self.info[0]['invoice_payments_widget'].append(self.process_payment()) #Arreglo que contiene los pagos
         #self.pagos.append(self.process_payment()) #Incluir funcion en info_factura
         #print(self.info[0]['invoice_payment_widget'])
         

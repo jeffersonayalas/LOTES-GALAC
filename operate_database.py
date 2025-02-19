@@ -7,7 +7,7 @@ from database import insertar_cliente, leer_txt, consultar_data
 # Ejemplo de uso (REEMPLAZA con tus datos):
 nombre_base_datos = "GDATA"
 usuario_superusuario = "postgres"
-contrasena_superusuario = "123456"  # ¡Nunca hardcodear contraseñas en producción!
+contrasena_superusuario = "python24"  # ¡Nunca hardcodear contraseñas en producción!
 
 def connection_database(host = "localhost", puerto="5432"):
     # Conexión como superusuario
