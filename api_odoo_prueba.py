@@ -4,7 +4,7 @@ import json
 from database import get_cliente
 from operate_database import connection_database
 
-archive = open("api_data.txt", "w")
+
 clientes_faltantes = open("clientes_faltantes.txt", "w")
 clientes_facturas = open("clientes_facturas.txt", "w")
 process_data = open("process_payment.txt", "w")
@@ -26,6 +26,11 @@ password = data_db.get('password')
 
 #recibe tipo de operacion y realiza una accion de acuerdo a ese tipo
 def api_data(operation_type, fecha):
+
+    clientes_facturas = open("clientes_facturas.txt", "w")
+    process_data = open("process_payment.txt", "w")
+    diarios_pagos = open('diarios_pagos.txt', 'w')
+    archive = open("api_data.txt", "w")
     
     #Creamos una lista para almacenar clientes
     clientes = []
@@ -43,10 +48,15 @@ def api_data(operation_type, fecha):
     # Conexión al servicio de modelos
     models = xmlrpc.client.ServerProxy('{}/xmlrpc/2/object'.format(url))
 
+    print(fecha)
+
     fecha_especifica = fecha  # Formato 'YYYY-MM-DD'
+    # Suponiendo que 'fecha' es un QDate obtenido de un QDateEdit
+    fecha_especifica = fecha.toString("yyyy-MM-dd")
+
     fecha_fin = '2025-01-30'
     dominio = [
-        ('invoice_date', '>=', fecha_especifica),  # Filtro por fecha específica
+        ('invoice_date', '=', fecha_especifica),  # Filtro por fecha específica
         ('payment_state', '=', 'paid'),# Filtro por estado pagado
         ('move_type', '=', 'out_invoice')
     ]
@@ -77,7 +87,7 @@ def api_data(operation_type, fecha):
             count += 1 #Corresponde con el numero de proceso
 
             # Escribe los resultados en el archivo
-            archive.write("\n" + str(result_execute[0]))
+            #archive.write("\n" + str(result_execute[0]))
             
             invoice_line_ids = result_execute[0]['invoice_line_ids']
             partner_id = result_execute[0]['partner_id']
@@ -152,6 +162,17 @@ def api_data(operation_type, fecha):
     else:
         print("No records found.")
     archive.close()  # Asegúrate de cerrar el archivo después de usarlo
+
+    if operation_type == 0:
+        clientes_faltantes.close()
+        clientes_faltantes_1 = open('clientes_faltantes.txt', 'r')
+        clientes_faltantes_1.seek(0)
+        return clientes_faltantes_1
+    else: 
+        clientes_facturas.close()
+        clientes_facturas_1 = open('clientes_facturas.txt', 'r')
+        clientes_facturas_1.seek(0)
+        return clientes_facturas_1
 
 
 def cons_payments(info_pagos, models, data_db, uid):
