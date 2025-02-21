@@ -1,27 +1,27 @@
 import psycopg2
 from psycopg2 import sql
 
-def leer_txt(connection, path_txt):
+def leer_txt(connection, archivo_txt):
     """Lee el archivo TXT e inserta los datos en la base de datos."""
     try:
-        with open(path_txt, "r", encoding="latin-1") as data_clientes: #utf-8 si latin-1 falla
-            hoja_cliente = ""
-            for linea in data_clientes:
-                datos_cliente = linea.split(";") # strip() para eliminar espacios en blanco
+        data_clientes = archivo_txt #utf-8 si latin-1 falla
+        hoja_cliente = ""
+        for linea in data_clientes:
+            datos_cliente = linea.split(";") # strip() para eliminar espacios en blanco
                 
-                print(len(datos_cliente))
-                if len(datos_cliente) == 26: #Verifica que la línea tenga 3 elementos
-                    cod_galac, nombre, rif = datos_cliente[0], datos_cliente[1], datos_cliente[2]
-                    try:
-                        print("Cliente: ", datos_cliente)
-                        insertar_cliente(cod_galac, nombre, rif, connection)
-                        sep = "---------------------------------------------\n"
-                        hoja_cliente += str(sep + "Nombre: " + str(nombre) + "\nRif: " + str(rif) + "\n")
-                    except Exception as e:
+            print(len(datos_cliente))
+            if len(datos_cliente) == 27 or len(datos_cliente) == 26: #Verifica que la línea tenga 3 elementos
+                cod_galac, nombre, rif = datos_cliente[0], datos_cliente[1], datos_cliente[2]
+                try:
+                    print("Cliente: ", datos_cliente)
+                    insertar_cliente(cod_galac, nombre, rif, connection)
+                    sep = "---------------------------------------------\n"
+                    hoja_cliente += str(sep + "Nombre: " + str(nombre) + "\nRif: " + str(rif) + "\n")
+                except Exception as e:
                         print(f"Error en la linea: {linea.strip()}. Error: {e}")
-                else:
-                    print(f"Línea incorrecta: {linea.strip()}")
-                    continue
+            else:
+                print(f"Línea incorrecta: {linea.strip()}")
+                continue
         return hoja_cliente
                     
 
@@ -55,14 +55,20 @@ def leer_productos(connection):
         print(f"Error al leer o procesar el archivo: {e}")
 
 # --- Codigo para insertar clientes --- #
-def insertar_cliente(cod_galac, nombre, rif, conn):
+def insertar_cliente(cod_galac, nombre_cliente, rif, conn):
     """Inserta un cliente en la tabla 'clientes' de forma segura."""
     try:
         cur = conn.cursor()
-        query = "INSERT INTO contactos (cod_galac, nombre_cliente, rif) VALUES (%s, %s, %s);"
-        cur.execute(query, (cod_galac, nombre, rif))
+        query1 = "SELECT column_name FROM information_schema.columns WHERE table_name = 'clientes';"
+        print(cur.execute(query1))
+        
+        conn.commit()
+
+        query = "INSERT INTO public.clientes (rif, cod_galac, nombre_cliente) VALUES (%s, %s, %s);"
+        cur.execute(query, (rif, cod_galac, nombre_cliente))
         conn.commit()
         print("Cliente insertado correctamente.")
+
     except psycopg2.Error as e:
         print(f"Error al insertar cliente: {e}")
         conn.rollback()
@@ -168,6 +174,24 @@ def get_cliente(conn, rif, tabla="contactos"): #Retorna los codigo de galac que 
                 return rows
     else: 
         return None
+    
+
+def get_code_client(conn, code):
+    try:
+        cur = conn.cursor()
+        # Consulta para verificar si el código ya existe
+        query = "SELECT COUNT(*) FROM clientes WHERE cod_galac = %s;"
+        cur.execute(query, (code,))
+        resultado = cur.fetchone()[0]
+
+        cur.close()
+        
+        return resultado > 0  # Retorna True si existe, False si no
+    except Exception as e:
+        print(f"Error al consultar la base de datos: {e}")
+        return True  # Si hay un error, asumimos que el código ya existe para evitar colisiones.
+
+
     
 
 

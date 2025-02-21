@@ -1,11 +1,11 @@
 import psycopg2
 from psycopg2 import sql
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT # <-- ADD THIS LINE
-from database import insertar_cliente, leer_txt, consultar_data
+from database import insertar_cliente, leer_txt, consultar_data, get_code_client
 
 
 # Ejemplo de uso (REEMPLAZA con tus datos):
-nombre_base_datos = "GDATA"
+nombre_base_datos = "data_facturas"
 usuario_superusuario = "postgres"
 contrasena_superusuario = "python24"  # ¡Nunca hardcodear contraseñas en producción!
 
@@ -111,9 +111,9 @@ def cerrar_conexiones(conn, database):
         cur.close()  # Cierra el cursor para liberar recursos
 
  
-def update_database(path_txt):
+def update_database(archivo_txt):
     connection = connection_database()
-    result = leer_txt(connection, path_txt)
+    result = leer_txt(connection, archivo_txt)
     #consultar_data(connection)
     connection.close()
     return [True, result]
@@ -134,6 +134,14 @@ def main_database():
 
     connection.close()
     return True
+
+
+def get_data(code):
+    connect = connection_database()
+    result = get_code_client(connect, code)
+    return result
+
+
 
 
 

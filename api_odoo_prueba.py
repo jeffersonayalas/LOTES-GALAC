@@ -5,11 +5,6 @@ from database import get_cliente
 from operate_database import connection_database
 
 
-clientes_faltantes = open("clientes_faltantes.txt", "w")
-clientes_facturas = open("clientes_facturas.txt", "w")
-process_data = open("process_payment.txt", "w")
-diarios_pagos = open('diarios_pagos.txt', 'w')
-
 data_db = {
         'url' : 'https://netcomplus.odoo.com',  # Cambia por la URL de tu servidor
         'db' : 's2ctechsoporte-netcom-main-7643792',
@@ -25,12 +20,26 @@ api_key = data_db.get('api_key')
 password = data_db.get('password')
 
 #recibe tipo de operacion y realiza una accion de acuerdo a ese tipo
-def api_data(operation_type, fecha):
+def api_data(*args):
+    #args solo puede tener dos o 3 argumentos
+    print(args)
+    
+    operation_type = args[0]
+    fecha = args[1]
+    client_type = None
+    if len(args) == 3:
+        if len(args[2]) == 1:
+            client_type = args[2][0]
+        else:
+            client_type = args[2]
+
+    print(client_type)
 
     clientes_facturas = open("clientes_facturas.txt", "w")
     process_data = open("process_payment.txt", "w")
     diarios_pagos = open('diarios_pagos.txt', 'w')
     archive = open("api_data.txt", "w")
+    clientes_faltantes = open("clientes_faltantes.txt", "w")
     
     #Creamos una lista para almacenar clientes
     clientes = []
@@ -87,7 +96,7 @@ def api_data(operation_type, fecha):
             count += 1 #Corresponde con el numero de proceso
 
             # Escribe los resultados en el archivo
-            #archive.write("\n" + str(result_execute[0]))
+            archive.write("\n" + str(result_execute[0]))
             
             invoice_line_ids = result_execute[0]['invoice_line_ids']
             partner_id = result_execute[0]['partner_id']
@@ -152,7 +161,7 @@ def api_data(operation_type, fecha):
             datos = [result_execute[0], productos, partner_data, count, data_db] #Ajustar el arreglo de productos para que vaya dentro de la informacion de las facturas
             
             if operation_type == 1:
-                fact_operation(datos)
+                fact_operation(datos, client_type)
             else:
                 create_clients(datos)
 
@@ -225,11 +234,10 @@ def cons_payments(info_pagos, models, data_db, uid):
         return None
    
 
-
-def fact_operation(info_client):
+def fact_operation(info_client, client_type):
     #Recorremos los pagos del cliente para ver si todos son en bs o en dolares
     ob_cliente = Cliente(info_client)
-    ob_cliente.generar_borrador(clientes_faltantes)
+    ob_cliente.generar_borrador(client_type)
 
 def create_clients(info_client):
     ob_cliente = Cliente(info_client)
@@ -238,5 +246,3 @@ def create_clients(info_client):
     suscription = get_cliente(connect, rif)
     if suscription == None:
         ob_cliente.generate_data()
-
-#api_data()

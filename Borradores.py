@@ -12,8 +12,11 @@ import datetime
 class Borrador:
 
     #Campos requeridos: rif, tasa_dolar, diario, pagos (pagos con fecha), base imponible de la factura, descuento, campo_bs, iva, 
-    def __init__(self, info, cod_cliente, counter_prod):
+    def __init__(self, info, cod_cliente, counter_prod, client_type):
         #print(info[0]['invoice_payments_widget'])
+
+        self.client_type = client_type
+        self.impuesto = info[0]['amount_tax']
         
         self.base_imponible = info[0]['invoice_payments_widget'][-1] #En divisas
 
@@ -146,7 +149,7 @@ class Borrador:
         
     def get_borrador(self):
         self.fecha_format = datetime.datetime.strptime(self.info['invoice_date'], '%Y-%m-%d').strftime('%d/%m/%Y')
-
+        
         # Crear lista de atributos
         atributos = [
             self.cod_borrador,
@@ -232,12 +235,28 @@ class Borrador:
             self.codigo_articulo,
             self.cod_moneda_cobro
         ]
+
+
         
         arch = open("clientes_facturas.txt", "a")
-        for dato in atributos:
-            arch.write(str(dato) + "\t")
-        arch.write("\n")
-        return atributos
+        #si el cliente es en bolivares
+        if self.client_type == 'Clientes en Bolivares' and self.impuesto != 0.0:
+            for dato in atributos:
+                arch.write(str(dato) + "\t")
+            arch.write("\n")
+            return atributos
+        elif self.client_type == 'Clientes en Divisas' and self.impuesto == 0.0:
+            for dato in atributos:
+                arch.write(str(dato) + "\t")
+            arch.write("\n")
+            return atributos
+        else:
+            if len(self.client_type) == 2:
+                for dato in atributos:
+                    arch.write(str(dato) + "\t")
+                arch.write("\n")
+                return atributos
+
 
     def pagos(self):
         return None

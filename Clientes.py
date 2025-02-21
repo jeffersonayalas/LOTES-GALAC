@@ -1,14 +1,17 @@
-from operate_database import connection_database
-from database import get_cliente
+from operate_database import get_data
+#from database import get_cliente
 from get_elements import codigo_vendedor, get_nombre
 from Borradores import *
 import datetime
+import random
+import string
 
 
 class Cliente:
     def __init__(self, info_odoo): #data es un diccionario que contiene los campos de factura obtenidos de odoo
         self.info = info_odoo
         self.connect = connection_database()
+        self.codigo = self.code_client()
         self.nombre = get_nombre(info_odoo[0]['invoice_partner_display_name'])
         self.rif = info_odoo[0]['rif'].replace('-', '')
         self.nit = "" #No se utiliza en netcom por lo tanto va vacio
@@ -88,6 +91,7 @@ class Cliente:
     def generate_data(self):
         
         atributos = [
+            self.codigo,
             self.nombre, 
             self.rif, 
             self.nit, 
@@ -118,17 +122,17 @@ class Cliente:
         #return atributos
         arch = open("clientes_faltantes.txt", "a")
         for dato in atributos:
-            arch.write(str(dato) + "\t")
+            arch.write(str(dato) + ";")
         arch.write("\n")
     
-    def generar_borrador(self, document): #Se obtiene el rif de cliente para realizar la busqueda en la base de datos de Galac
+    def generar_borrador(self, client_type): #Se obtiene el rif de cliente para realizar la busqueda en la base de datos de Galac
         #Se deben desglosar los montos al momento de enviarlos al borrador 
         
         if self.suscription != False:
             counter_prod = 0
             #Pendiente
             for prod in self.products_client:
-                obj = Borrador(self.info_factura, self.suscription, counter_prod) #Se pasa el rif para obtener el objeto borrador con los campos correspondientes
+                obj = Borrador(self.info_factura, self.suscription, counter_prod, client_type) #Se pasa el rif para obtener el objeto borrador con los campos correspondientes
                 self.borradores.append(obj)
                 obj.get_cod_borrador() #REVISAR
                 obj.get_borrador() 
@@ -165,7 +169,6 @@ class Cliente:
         return round(base_imponible_desc, 2)
             
         
-
     def get_suscription(self):
         data = get_cliente(self.connect, self.rif) #Obtiene el codigo de galac dado el rif del cliente
         if data != None:
@@ -187,6 +190,25 @@ class Cliente:
             return 'MARACAY'
         else:
             return False
+        
+    def code_client(self):
+        # Generar un nuevo código
+        primera_letra = random.choice(string.ascii_uppercase)
+        dos_digitos = f"{random.randint(0, 99):02d}"
+        tres_letras_1 = ''.join(random.choices(string.ascii_uppercase, k=3))
+        un_digito = str(random.randint(0, 9))
+        tres_letras_2 = ''.join(random.choices(string.ascii_uppercase, k=3))
+
+        codigo_cliente = f"{primera_letra}{dos_digitos}{tres_letras_1}{un_digito}{tres_letras_2}"
+
+        # Aca se realiza la consulta a la base de datos
+        if get_data(codigo_cliente) == True:
+            # Si el código ya existe, llamamos a la función nuevamente
+            return self.code_client()
+        else:
+            return codigo_cliente  # Retornar el nuevo código
+
+
         
 
     

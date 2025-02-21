@@ -12,7 +12,6 @@ from operate_database import main_database, update_database
 from main import execute_data
 from api_odoo_prueba import api_data
 
-
 class Ventana(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -24,7 +23,7 @@ class Ventana(QMainWindow):
         self.date_edit = QDateEdit(self)
         self.date_edit.setDate(QDate.currentDate())  # Establecer la fecha actual como valor por defecto
         self.date_edit.setDisplayFormat("yyyy-MM-dd")  # Formato de visualización
-        
+
         fecha = self.date_edit.date()
 
         # Crear un layout horizontal para la fecha
@@ -34,7 +33,7 @@ class Ventana(QMainWindow):
 
         # Layout de grilla principal
         layoutPrincipal = QGridLayout()
-
+        
         # Añadir el layout de fecha en la parte superior
         layoutPrincipal.addLayout(layout_fecha, 0, 0, 1, 2)  # Fila 0, columna 0, ocupa 1 fila y 2 columnas
 
@@ -43,7 +42,7 @@ class Ventana(QMainWindow):
         layoutPrincipal.addWidget(ventana1, 1, 1)  # Fila 1, Columna 1
 
         ventana2 = VentanaArchivo(fecha)
-        ventana2.setGeometry(800, 500, 800, 500)  # Cambiar el ancho a 800
+        ventana2.setGeometry(500, 500, 500, 500)
         layoutPrincipal.addWidget(ventana2, 1, 0)  # Fila 1, Columna 0
 
         layoutPrincipal.setRowStretch(1, 1)  # Asegura que la fila con las ventanas sea flexible
@@ -57,26 +56,53 @@ class Ventana(QMainWindow):
         # Establecer el widget central en la ventana principal
         self.setCentralWidget(widgetCentral)
 
-class VentanaPrincipal(QWidget):
 
+    def center(self):
+        # Obtener el tamaño de la ventana
+        tamanio_ventana = self.frameGeometry()
+        # Obtener la resolución de la pantalla
+        pantalla = QApplication.primaryScreen().availableGeometry()
+        
+        # Calcular la posición centrada
+        x = (pantalla.width() - tamanio_ventana.width()) // 2
+        y = (pantalla.height() - tamanio_ventana.height()) // 2
+
+        # Mover la ventana a la posición calculada
+        self.move(x, y)
+
+    #Funcion obtiene la ventana a la cual va a aplicar los cambios 
+    def cargar_contenido_archivo(self, ruta_archivo, ventana):
+        try:
+            with open(ruta_archivo, 'r', encoding='utf-8') as archivo:
+                contenido = archivo.read()  # Leer todo el archivo
+                self.texto.setPlainText(contenido)  # Establecer el contenido en el QTextEdit
+        except Exception as e:
+            self.etiqueta.setText(f"Error al cargar el archivo: {str(e)}")  # Manejo de errores
+
+    def process(ventana):
+        # Llama a api_data y emite el resultado
+        resultado = api_data(1, ventana.fecha_data)  # Llama a la función
+        return resultado
+        self.resultado_obtenido.emit(resultado)  # Emitir el resultado a través de la señal
+
+class VentanaPrincipal(QWidget):
     # Definir la señal que enviará el resultado
-    resultado_obtenido = pyqtSignal(str)
+    contenido_archivo_obtenido = pyqtSignal(str)
 
     def __init__(self, fecha):
         super().__init__()
 
-        
         self.estado_resultado = False
         self.ruta_excel = None
         self.setWindowTitle("FACTURACION POR LOTES - GALAC/ODOO")
         self.fecha_data = fecha
 
         self.etiqueta_resultado = QLabel("")
-        self.etiqueta_resultado.setObjectName("etiqueta_resultado")  # asigna el ID para el QLabel resultado
-        #self.boton_crear_bd = QPushButton("Crear Base de datos", self)
+        self.etiqueta_resultado.setObjectName("etiqueta_resultado")  # Asigna el ID para el QLabel resultado
         self.button = QPushButton("FUSIONAR", self)
         self.etiqueta_tipo = QLabel("Clientes a facturar: ")
-         # Crear el QListWidget para el checklist
+
+        # Crear el QListWidget para el checklist
         self.checklist = QListWidget()
         items = ['Clientes en Bolivares', 'Clientes en Divisas']
         self.checklist.setFixedSize(QSize(250, 50))
@@ -84,23 +110,17 @@ class VentanaPrincipal(QWidget):
         # Añadir elementos al checklist
         for item in items:
             list_item = QListWidgetItem(item)
-            list_item.setFlags(list_item.flags() | Qt.ItemIsUserCheckable)  # Hacer el elemento checkeable
+            list_item.setFlags(list_item.flags() | Qt.ItemIsUserCheckable)  # Hacer el elemento chequeable
             list_item.setCheckState(Qt.Unchecked)  # Estado inicial: desmarcado
             self.checklist.addItem(list_item)
 
-        #self.boton_excel.clicked.connect(self.seleccionar_excel)
         self.texto_edit = QTextEdit(self)
         self.texto_edit.setReadOnly(True)  # Para evitar modificaciones
         self.texto_edit.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        self.etiqueta_impuesto = QLabel("Aplicar impuestos")
-        self.fecha = QLabel("Seleccione una fecha:")
 
         disenio_horizontal_monto = QHBoxLayout()
         disenio_horizontal_monto.addWidget(self.etiqueta_tipo)
         disenio_horizontal_monto.addWidget(self.checklist)
-        disenio_horizontal_impuestos = QHBoxLayout()
-
-        #self.boton_crear_bd.clicked.connect(self.create_database)
 
         disenio_vertical = QVBoxLayout()
         disenio_vertical.addLayout(disenio_horizontal_monto)
@@ -109,41 +129,44 @@ class VentanaPrincipal(QWidget):
         disenio_vertical.addWidget(self.button)
         self.setLayout(disenio_vertical)
 
-        #Aca se bede hacer llamada a la api para procesar los datos
-        #Se realiza la llaada y se retorna una variable con toda la data procesada
-        self.button.clicked.connect(self.enviar_datos) 
+        # Conectar señal y slot para mostrar el contenido
+        self.contenido_archivo_obtenido.connect(self.mostrar_contenido_archivo)
 
-    """ 
-    def seleccionar_excel(self):
-        ruta_archivo, _ = QFileDialog.getOpenFileName(self, "Seleccionar archivo Excel", "", "Archivos Excel (*.xlsx *.xls)")
-        #print(ruta_archivo)
-        self.ruta_excel = ruta_archivo
-        if ruta_archivo:
-            self.entrada_excel.setText(ruta_archivo)
-            try:
-                pd.read_excel(ruta_archivo)
-                self.etiqueta_resultado.setText("Archivo Excel cargado correctamente.")
-            except Exception as e:
-                self.etiqueta_resultado.setText(f"Error al cargar el archivo Excel: {e}")
-    """
+        self.button.clicked.connect(self.enviar_datos)
+
+    def obtener_tipos_clientes(self):
+        """Verifica los tipos de clientes seleccionados en el checklist."""
+        tipos_clientes = []
+        for index in range(self.checklist.count()):
+            item = self.checklist.item(index)
+            if item.checkState() == Qt.Checked:
+                tipos_clientes.append(item.text())
+        return tipos_clientes
 
     def enviar_datos(self):
-            try:
-                # Muestra el mensaje de espera
-                self.etiqueta_resultado.setText("Espere unos segundos...")
-                # Crea un hilo para la operación de fusión
-                hilo_fusion = threading.Thread(target=self.ejecutar_api_data)
-                hilo_fusion.start()
+        try:
+            # Muestra el mensaje de espera
+            self.etiqueta_resultado.setText("Espere unos segundos...")
 
-            except ValueError:
-                self.etiqueta_resultado.setText("Error: Ingresa un monto válido.")
-            except FileNotFoundError:
-                self.etiqueta_resultado.setText("Error: Archivo no encontrado.")
+            # Obtener los tipos de clientes seleccionados
+            tipos_clientes = self.obtener_tipos_clientes()
+            if not tipos_clientes:
+                self.etiqueta_resultado.setText("Selecciona al menos un tipo de cliente.")
+                return
 
-    def ejecutar_api_data(self):
-        # Obtener el archivo abierto de api_data
-        archivo_resultado = api_data(1, self.fecha_data)  # Llamar a la función que retorna un archivo abierto
-        print(archivo_resultado)
+            # Crea un hilo para la operación de fusión
+            hilo_fusion = threading.Thread(target=self.ejecutar_api_data, args=(tipos_clientes,))
+            hilo_fusion.start()
+
+        except ValueError:
+            self.etiqueta_resultado.setText("Error: Ingresa un monto válido.")
+        except FileNotFoundError:
+            self.etiqueta_resultado.setText("Error: Archivo no encontrado.")
+
+    def ejecutar_api_data(self, tipos_clientes):
+        # Aquí puedes usar tipos_clientes para procesar la lógica necesaria
+        # Por ejemplo, puedes pasarlos a la función api_data
+        archivo_resultado = api_data(1, self.fecha_data, tipos_clientes)  # Asegúrate de que tu función api_data esté ajustada para recibir esto
         self.leer_contenido_archivo(archivo_resultado)  # Leer el contenido del archivo
 
     def leer_contenido_archivo(self, archivo):
@@ -157,44 +180,7 @@ class VentanaPrincipal(QWidget):
     @pyqtSlot(str)
     def mostrar_contenido_archivo(self, contenido):
         self.texto_edit.setPlainText(contenido)  # Mostrar el contenido en QTextEdit
-        self.etiqueta_resultado.setText("Contenido cargado correctamente")  # Mensaje de éxito
-
-  
-
-    """ 
-    def procesar_fusion(self, ruta_excel, monto):
-        # Este método se ejecuta en un hilo separado
-        try:
-            #result = execute_data(ruta_excel, monto)
-            result = 0
-            #execute_data(ruta_excel, monto)
-
-            # Actualiza la interfaz en el hilo principal
-            QMetaObject.invokeMethod(self, "actualizar_resultado", Qt.QueuedConnection, Q_ARG(str, result))
-            QMetaObject.invokeMethod(self, "mensaje_exito", Qt.QueuedConnection)
-        
-        except Exception as e:
-            QMetaObject.invokeMethod(self, "mensaje_error", Qt.QueuedConnection, Q_ARG(str, str(e)))
-    """
-
-    @pyqtSlot(str)
-    def actualizar_resultado(self, result):
-        self.texto_edit.setText("")
-        self.texto_edit.setText(result)
-
-    @pyqtSlot()
-    def mensaje_exito(self):
-        self.etiqueta_resultado.setText("Datos procesados correctamente.")
-
-    @pyqtSlot(str)
-    def mensaje_error(self, error_message):
-        self.etiqueta_resultado.setText(f"Error al procesar los datos: {error_message}")
-
-    def create_database(self):
-        if main_database():
-            self.etiqueta_resultado.setText("Base de datos creada exitosamente")
-
-    
+        self.etiqueta_resultado.setText("Contenido cargado correctamente.")  # Mensaje de éxito
 
 class VentanaArchivo(QWidget):
     # Señal para comunicar la actualización completada
@@ -219,9 +205,10 @@ class VentanaArchivo(QWidget):
         layout.addWidget(self.texto)
         layout.addWidget(self.etiqueta)
         layout.addWidget(self.boton_archivo)
-        
-        # Asegúrate de que el QTextEdit ocupe el ancho completo
         self.setLayout(layout)  # Uso de setLayout en lugar de setCentralWidget
+
+        # Conectar señal a la función para actualizar GUI
+        self.actualizarFinished.connect(self.mostrar_resultado_actualizacion)
 
     def enviar_datos(self):
         try:
@@ -254,9 +241,17 @@ class VentanaArchivo(QWidget):
         if data[0]:
             self.texto.setPlainText(data[1])  # Mostrar el contenido en QTextEdit
             self.etiqueta.setText("Base de datos actualizada")
+
+            #Aqui se realiza llamada para actualizacion de base de datos 
+            print(data)
         else:
             self.texto.setPlainText("")  # Limpiar el contenido anterior
             self.etiqueta.setText(data[1])  # Mostrar error en la interfaz de usuario
+
+    def actualizar_database():
+        return 0
+
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
@@ -266,7 +261,3 @@ if __name__ == "__main__":
     ventana.setGeometry(1000, 800, 1000, 800)
     ventana.show()
     sys.exit(app.exec_())
-
-
-
-

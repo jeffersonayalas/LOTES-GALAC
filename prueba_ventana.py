@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import (QApplication, QWidget, QLabel,
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 import pandas as pd
-from operate_database import main_database, update_database
+from operate_database import main_database, update_database, connection_database
 from main import execute_data
 from api_odoo_prueba import api_data
 
@@ -87,7 +87,7 @@ class Ventana(QMainWindow):
 
 class VentanaPrincipal(QWidget):
     # Definir la señal que enviará el resultado
-    contenido_archivo_obtenido = pyqtSignal(str)  # Asegúrate de tener esta señal definida
+    contenido_archivo_obtenido = pyqtSignal(str)
 
     def __init__(self, fecha):
         super().__init__()
@@ -99,19 +99,18 @@ class VentanaPrincipal(QWidget):
 
         self.etiqueta_resultado = QLabel("")
         self.etiqueta_resultado.setObjectName("etiqueta_resultado")  # Asigna el ID para el QLabel resultado
-        
         self.button = QPushButton("FUSIONAR", self)
         self.etiqueta_tipo = QLabel("Clientes a facturar: ")
 
         # Crear el QListWidget para el checklist
         self.checklist = QListWidget()
         items = ['Clientes en Bolivares', 'Clientes en Divisas']
-        self.checklist.setFixedSize(QSize(250, 50))
+        self.checklist.setFixedSize(QSize(250, 70))
 
         # Añadir elementos al checklist
         for item in items:
             list_item = QListWidgetItem(item)
-            list_item.setFlags(list_item.flags() | Qt.ItemIsUserCheckable)  # Hacer el elemento checkeable
+            list_item.setFlags(list_item.flags() | Qt.ItemIsUserCheckable)  # Hacer el elemento chequeable
             list_item.setCheckState(Qt.Unchecked)  # Estado inicial: desmarcado
             self.checklist.addItem(list_item)
 
@@ -135,21 +134,39 @@ class VentanaPrincipal(QWidget):
 
         self.button.clicked.connect(self.enviar_datos)
 
+    def obtener_tipos_clientes(self):
+        """Verifica los tipos de clientes seleccionados en el checklist."""
+        tipos_clientes = []
+        for index in range(self.checklist.count()):
+            item = self.checklist.item(index)
+            if item.checkState() == Qt.Checked:
+                tipos_clientes.append(item.text())
+        return tipos_clientes
+
     def enviar_datos(self):
         try:
             # Muestra el mensaje de espera
             self.etiqueta_resultado.setText("Espere unos segundos...")
+
+            # Obtener los tipos de clientes seleccionados
+            tipos_clientes = self.obtener_tipos_clientes()
+            if not tipos_clientes:
+                self.etiqueta_resultado.setText("Selecciona al menos un tipo de cliente.")
+                return
+
             # Crea un hilo para la operación de fusión
-            hilo_fusion = threading.Thread(target=self.ejecutar_api_data)
+            hilo_fusion = threading.Thread(target=self.ejecutar_api_data, args=(tipos_clientes,))
             hilo_fusion.start()
+
         except ValueError:
             self.etiqueta_resultado.setText("Error: Ingresa un monto válido.")
         except FileNotFoundError:
             self.etiqueta_resultado.setText("Error: Archivo no encontrado.")
 
-    def ejecutar_api_data(self):
-        # Obtener el archivo abierto de api_data
-        archivo_resultado = api_data(1, self.fecha_data)  # Llamar a la función que retorna un archivo abierto
+    def ejecutar_api_data(self, tipos_clientes):
+        # Aquí puedes usar tipos_clientes para procesar la lógica necesaria
+        # Por ejemplo, puedes pasarlos a la función api_data
+        archivo_resultado = api_data(1, self.fecha_data, tipos_clientes)  # Asegúrate de que tu función api_data esté ajustada para recibir esto
         self.leer_contenido_archivo(archivo_resultado)  # Leer el contenido del archivo
 
     def leer_contenido_archivo(self, archivo):
@@ -163,7 +180,7 @@ class VentanaPrincipal(QWidget):
     @pyqtSlot(str)
     def mostrar_contenido_archivo(self, contenido):
         self.texto_edit.setPlainText(contenido)  # Mostrar el contenido en QTextEdit
-        self.etiqueta_resultado.setText("Contenido cargado correctamente")  # Mensaje de éxito
+        self.etiqueta_resultado.setText("Contenido cargado correctamente.")  # Mensaje de éxito
 
 class VentanaArchivo(QWidget):
     # Señal para comunicar la actualización completada
@@ -223,10 +240,18 @@ class VentanaArchivo(QWidget):
     def mostrar_resultado_actualizacion(self, data):
         if data[0]:
             self.texto.setPlainText(data[1])  # Mostrar el contenido en QTextEdit
+            #Aqui se realiza llamada para actualizacion de base de datos 
+            self.actualizar_database()
+
             self.etiqueta.setText("Base de datos actualizada")
         else:
             self.texto.setPlainText("")  # Limpiar el contenido anterior
             self.etiqueta.setText(data[1])  # Mostrar error en la interfaz de usuario
+
+    def actualizar_database(self):
+        #Se llama a funcion para actualizar la base de datos y se le pasa el archivo
+        archivo_actualizacion = open('clientes_faltantes.txt', 'r')
+        update_database(archivo_actualizacion)
 
 
 if __name__ == "__main__":
