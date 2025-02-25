@@ -11,7 +11,14 @@ contrasena_superusuario = "python24"  # ¡Nunca hardcodear contraseñas en produ
 
 def connection_database(host = "localhost", puerto="5432"):
     # Conexión como superusuario
-    conn = psycopg2.connect(user=usuario_superusuario, password=contrasena_superusuario, host=host, port=puerto)
+   
+    conn = psycopg2.connect(
+        dbname=nombre_base_datos,  # Especificar la base de datos aquí
+        user=usuario_superusuario,
+        password=contrasena_superusuario,
+        host=host,
+        port=puerto
+    )
     conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT) # <-- ADD THIS LINE
     return conn
    

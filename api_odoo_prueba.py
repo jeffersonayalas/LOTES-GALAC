@@ -111,48 +111,7 @@ def api_data(*args):
                     prod = line['product_id'][1].replace("\n", " ")
                     productos.append(prod)
 
-            #SUBIR LOS DIARIOS DE CAJA A LA BASE DE DATOS
-            diarios_de_caja = [
-                'FREE MARKET 01',
-                'FREE MARKET 02',
-                'LOS CAOBOS 01',
-                'LOS CAOBOS 02',
-                'LOS CAOBOS 03',
-                'LOS CAOBOS 04',
-                'LOS CAOBOS 05',
-                'LOS CAOBOS 06',
-                'LOS GUAYOS 01',
-                'LOS GUAYOS 02',
-                'LA MORITA 01',
-                'LA MORITA 02',
-                'LA MORITA 04',
-                'LA MORITA 05',
-                'LA MORITA 06',
-                'LA MORITA 03',
-                'CAGUA 01',
-                'CAGUA 02',
-                'GUACARA 01',
-                'GUACARA 02',
-                'GUACARA 03',
-                'GUACARA 04',
-                'GUACARA 05',
-                'GUACARA 06',
-                'PUERTO CABELLO 01',
-                'PASEO LAS INDUSTRIAS 01',
-                'PASEO LAS INDUSTRIAS 02',
-                'PUERTO CABELLO 02',
-                'PUERTO CABELLO 03',
-                'PUERTO CABELLO 04',
-                'PUERTO CABELLO 05',
-                'TORRE MOVILNET 01',
-                'TORRE MOVILNET 02',
-                'TORRE MOVILNET 03',
-                'TORRE MOVILNET 04',
-                'SAN JOAQUIN 01',
-                'TOCUYITO 01',
-                'TOCUYITO 02'
-            ]
-
+            
             pagos = cons_payments(result_execute[0]["invoice_payments_widget"], models, data_db, uid)
             if pagos == None:
                 continue

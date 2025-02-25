@@ -58,13 +58,27 @@ def leer_productos(connection):
 def insertar_cliente(cod_galac, nombre_cliente, rif, conn):
     """Inserta un cliente en la tabla 'clientes' de forma segura."""
     try:
+
+
+        if len(rif) > 1:
+            rif =  rif[0] + '-' + rif[1:]  # Insertar el guion en la segunda posición
+
+        # Verificar si el cliente ya existe
+        query_check = "SELECT COUNT(*) FROM clientes WHERE rif = %s;"
+        cur.execute(query_check, (rif,))
+        exists = cur.fetchone()[0]
+
+        if exists > 0:
+            print("El cliente ya existe en la base de datos.")
+            return
+        
         cur = conn.cursor()
         query1 = "SELECT column_name FROM information_schema.columns WHERE table_name = 'clientes';"
         print(cur.execute(query1))
         
         conn.commit()
 
-        query = "INSERT INTO public.clientes (rif, cod_galac, nombre_cliente) VALUES (%s, %s, %s);"
+        query = "INSERT INTO clientes (rif, cod_galac, nombre_cliente) VALUES (%s, %s, %s);"
         cur.execute(query, (rif, cod_galac, nombre_cliente))
         conn.commit()
         print("Cliente insertado correctamente.")
@@ -159,7 +173,8 @@ def drop(conn):
     #Se eliminan todos los datos de la tabla
     return 0
 
-def get_cliente(conn, rif, tabla="contactos"): #Retorna los codigo de galac que corresponden a las suscripciones del cliente
+def get_cliente(conn, rif, tabla="clientes"): #Retorna los codigo de galac que corresponden a las suscripciones del cliente
+    
     if rif != False:
         #rif_comp = rif.split("-")
         #print(rif_comp)
@@ -174,6 +189,8 @@ def get_cliente(conn, rif, tabla="contactos"): #Retorna los codigo de galac que 
                 return rows
     else: 
         return None
+    
+    #Conectar con api para obtener cliente 
     
 
 def get_code_client(conn, code):
