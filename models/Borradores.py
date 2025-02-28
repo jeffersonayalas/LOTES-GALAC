@@ -13,14 +13,11 @@ class Borrador:
 
     #Campos requeridos: rif, tasa_dolar, diario, pagos (pagos con fecha), base imponible de la factura, descuento, campo_bs, iva, 
     def __init__(self, info, cod_cliente, counter_prod, client_type):
-        #print(info[0]['invoice_payments_widget'])
-
         self.client_type = client_type
         self.impuesto = info[0]['amount_tax']
         
         self.base_imponible = info[0]['invoice_payments_widget'][-1] #En divisas
 
-        #self.base_imponible = info[0]['amount_untaxed']
         self.api_data = info[4]
         self.info = info[0]
         self.products = info[1]
@@ -30,7 +27,7 @@ class Borrador:
         self.rif = info[0]['rif'].replace('-', '')
         self.cod_galac = cod_cliente
         self.borrador = self.cod_galac
-        self.vendedor = self.get_vendedor()
+        self.vendedor = '00001'
         self.fecha_format = self.info['invoice_date']
         self.observaciones = get_observaciones(self.fecha_format)
        
@@ -236,8 +233,6 @@ class Borrador:
             self.cod_moneda_cobro
         ]
 
-
-        
         arch = open("clientes_facturas.txt", "a")
         #si el cliente es en bolivares
         if self.client_type == 'Clientes en Bolivares' and self.impuesto != 0.0:
@@ -279,6 +274,3 @@ class Borrador:
 
     def descuento():
         return None
-
-      
-

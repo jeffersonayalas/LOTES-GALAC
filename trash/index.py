@@ -10,7 +10,7 @@ from PyQt5.QtGui import *
 import pandas as pd
 from database.operate_database import main_database, update_database
 from app.main import execute_data
-from app.api_odoo_prueba import api_data
+from app.api_odoo import api_data
 
 class Ventana(QMainWindow):
     def __init__(self):

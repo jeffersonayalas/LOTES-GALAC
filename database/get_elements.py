@@ -6,7 +6,7 @@ def numero(borrador):
     return str(borrador)
 
 
-def codigo_vendedor(diario): #Se realiza consulta a la base de datos para obtener el codigo del cliente
+def codigo_vendedor(diario): 
     vendedor = diario
 
     if vendedor == "BELLA FLORIDA 01":

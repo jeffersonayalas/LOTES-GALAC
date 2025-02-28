@@ -1,8 +1,9 @@
 import xmlrpc.client
 from models.Clientes import Cliente
 import json
-from database.database import get_cliente
-from database.operate_database import connection_database
+#from database.database import get_cliente
+#from database.operate_database import connection_database
+from database.inter_database import obtain_client
 
 
 data_db = {
@@ -196,8 +197,7 @@ def fact_operation(info_client, client_type):
 
 def create_clients(info_client):
     ob_cliente = Cliente(info_client)
-    connect = connection_database()
     rif = ob_cliente.rif
-    suscription = get_cliente(connect, rif)
-    if suscription == None:
+    cliente = obtain_client(rif)
+    if cliente == None:
         ob_cliente.generate_data()

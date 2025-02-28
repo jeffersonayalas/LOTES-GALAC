@@ -2,7 +2,7 @@ import sys
 import threading
 from database.inter_database import update_database
 from app.main import execute_data
-from app.api_odoo_prueba import api_data
+from app.api_odoo import api_data
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import (QApplication, QWidget, QLabel, 

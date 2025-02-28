@@ -8,6 +8,7 @@ import xmlrpc.client
 from dotenv import load_dotenv  # Importar python-dotenv
 import os  # Para acceder a las variables de entorno
 import json
+import re
 
 
 DB_HOST="http://127.0.0.1:8000"
@@ -23,19 +24,68 @@ def insert_clients(cliente_data):
     print("VERIFICACION DE CLIENTE:", cliente_data)
 
     # Realizar la petición POST para insertar un cliente
-    print("SOLICITUD HACIA:", f'{base_url}/clientes')
+    print("SOLICITUD HACIA:", f'{base_url}/clientes/')
 
     try:
-        response = requests.post(f'{base_url}/clientes', headers=headers, json=cliente_data)
+        if cliente_data != None:
+            response = requests.post(f'{base_url}/clientes/', headers=headers, json=cliente_data)
 
-        if response.status_code == 201:  # Código de éxito para creación
-            return response.json()  # Devuelve la respuesta en formato JSON
-        else:
-            print(f'Error: {response.status_code}, {response.text}')
-            return None
+            if response.status_code == 201:  # Código de éxito para creación
+                return response.json()  # Devuelve la respuesta en formato JSON
+            else:
+                print(f'Error: {response.status_code}, {response.text}')
+                return None
     except Exception as e:
         print(f'Error durante la solicitud: {e}')
         return None
+    
+
+def validar_y_generar_rif(documento):
+    """
+    Valida el formato del documento (RIF) y siempre retorna una lista.
+
+    Parámetros:
+        documento (str o int): El documento a validar o procesar.
+
+    Retorna:
+        - Si el formato es correcto, devuelve una lista con el documento.
+        - Si el documento es solo numérico, devuelve una lista con las 4 configuraciones posibles.
+        - Si el formato no es válido, devuelve una lista vacía.
+    """
+    # Convertir a string si es un número
+    if isinstance(documento, int):
+        documento = str(documento)
+    
+    documento = documento.strip().upper()  # Normalizar el documento
+    
+    # Expresión regular para validar el formato del RIF
+    rif_pattern = re.compile(r'^[VJGP]-\d{6,}$')
+    
+    # Validar si el documento tiene un formato de RIF válido
+    if rif_pattern.match(documento):
+        print(f"✅ RIF válido: {documento}")
+        return [documento]  # Retornar el documento en una lista
+    
+    # Si el documento es solo numérico, generar las 4 configuraciones
+    if documento.isdigit():
+        documentos = [f"{prefix}-{documento}" for prefix in ["V", "J", "G", "P"]]
+        return documentos
+    
+    # Si no cumple con ningún formato válido, retornar una lista vacía
+    return []
+
+def get_rif(rif):
+    posibles_rif = validar_y_generar_rif(rif)
+    
+    for rif_attempt in posibles_rif:
+        
+        #Se realiza busqueda de los posibles rifs en odoo (Si se encuentra se retorna el rif con el que se hizo match)
+        client_odoo = buscar_cliente_odoo(rif_attempt)
+
+        if isinstance(client_odoo, dict) and 'id' in client_odoo:
+            return rif_attempt
+    return None
+
     
 
 def create_object_client(data):
@@ -44,12 +94,12 @@ def create_object_client(data):
     # Buscar cliente en Odoo
     client = buscar_cliente_odoo(rif_client)
 
+    
     if isinstance(client, dict) and 'id' in client:
         print(f"🔍 Cliente encontrado en Odoo con {rif_client}: {client}")
         
         # Construir el nuevo cliente
         new_client = {
-            "uuid": str(uuid.uuid4()),
             "odoo_id": str(client.get('id')),
             "rif": rif_client,
             "cod_galac": data.get('cod_galac'),  # Asegúrate que este valor es válido
@@ -113,13 +163,38 @@ def update_database(archivo_txt):
             except Exception as e:
                 print(f"Error en la línea: {linea.strip()}. Error: {e}")
 
-        return hoja_cliente  # Podrías devolver la lista de clientes agregados
+        return hoja_cliente  #Podrías devolver la lista de clientes agregados
 
     except FileNotFoundError as e:
         print(f"Archivo bd_clientes.txt no encontrado. {e}")
 
     except Exception as e:
         print(f"Error al leer o procesar el archivo: {e}")
+
+
+def obtain_client(id_client: str):
+    base_url = DB_HOST  # Asegúrate de que DB_HOST esté definido con la URL base de tu API
+
+    headers = {
+        'Content-Type': 'application/json'
+    }
+
+    print("VERIFICACION DE CLIENTE:", id_client)
+
+    # Realizar la petición GET para obtener el cliente
+    print("SOLICITUD HACIA:", f'{base_url}/clientes/{id_client}')
+
+    try:
+        response = requests.get(f'{base_url}/clientes/{id_client}', headers=headers)
+
+        if response.status_code == 200:  # Código de éxito para éxito en lectura
+            return response.json()  # Devuelve el codigo de galac
+        else:
+            print(f'Error: {response.status_code}, {response.text}')
+            return None
+    except Exception as e:
+        print(f'Error durante la solicitud: {e}')
+        return None
 
 ############################################################################################################################
                                 ### ------------------ ODOO ID --------------------- ###

@@ -3,7 +3,7 @@ from trash.data import open_archives
 from database.get_elements import codigo_vendedor
 from trash.exportar_clientes import txt_to_csv
 
-from app.api_odoo_prueba import api_data
+from app.api_odoo import api_data
 
 def execute_data(ruta_excel, monto):
     #api_data()

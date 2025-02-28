@@ -1,6 +1,6 @@
 from database.operate_database import get_data
-#from database import get_cliente
 from database.get_elements import codigo_vendedor, get_nombre
+from database.inter_database import obtain_client, buscar_cliente_odoo
 from models.Borradores import *
 import datetime
 import random
@@ -13,7 +13,7 @@ class Cliente:
         self.connect = connection_database()
         self.codigo = self.code_client()
         self.nombre = get_nombre(info_odoo[0]['invoice_partner_display_name'])
-        self.rif = info_odoo[0]['rif'].replace('-', '')
+        self.rif = info_odoo[0]['rif']
         self.nit = "" #No se utiliza en netcom por lo tanto va vacio
         self.cuenta_contable_cxc = ""
         self.c_contable_ingresos = ""
@@ -42,6 +42,8 @@ class Cliente:
         self.borradores = [] 
         self.suscription = self.get_suscription()
         self.n_proceso = info_odoo[3]
+
+        self.record_id = self.rif
        
 
         self.pagos = self.info[0]['invoice_payments_widget']
@@ -49,11 +51,10 @@ class Cliente:
 
 
         self.info[0]['invoice_payments_widget'].append(self.process_payment()) #Arreglo que contiene los pagos
-        #self.pagos.append(self.process_payment()) #Incluir funcion en info_factura
-        #print(self.info[0]['invoice_payment_widget'])
+        
         
         self.info_factura = info_odoo
-        #self.info_factura[5] = self.info_pagos
+    
         """
             codigo_cliente
             nombre
@@ -119,12 +120,32 @@ class Cliente:
             self.fecha_creacion,
         ]
         
-        #return atributos
-        arch = open("clientes_faltantes.txt", "a")
-        for dato in atributos:
-            arch.write(str(dato) + ";")
-        arch.write("\n")
+        rif_contenido = f"{self.rif};"  # Formatear RIF para comparación
+        archivo_faltantes = "clientes_faltantes.txt"
+
+        # Leer el archivo existente para verificar duplicados
+        try:
+            with open(archivo_faltantes, "r") as arch:
+                lineas = arch.readlines()
+
+            # Verificar si el RIF ya existe
+            for linea in lineas:
+                if rif_contenido in linea:  # Si el RIF ya está en la línea, no lo agregues
+                    print(f"El cliente con RIF {self.rif} ya está en el archivo, no se agregará.")
+                    return  # Devolver si ya existe
+
+        except FileNotFoundError:
+            # Si el archivo no existe, está bien, simplemente se creará
+            pass
+        
+        if self.suscription != None:
+            # Si el RIF no está presente, escribir los atributos en el archivo
+            with open(archivo_faltantes, "a") as arch:
+                for dato in atributos:
+                    arch.write(str(dato) + ";")
+                arch.write("\n")
     
+
     def generar_borrador(self, client_type): #Se obtiene el rif de cliente para realizar la busqueda en la base de datos de Galac
         #Se deben desglosar los montos al momento de enviarlos al borrador 
         
@@ -169,12 +190,12 @@ class Cliente:
             
         
     def get_suscription(self):
-        data = get_cliente(self.connect, self.rif) #Obtiene el codigo de galac dado el rif del cliente
-        if data != None:
-            return data[0]
-        else:  
-            return False #Si no se obtiene resultado quiere decir que el cliente no existe, por lo tanto se debe crear (Se hace llamada a funcion que obtiene el ultimo codigo registrado en galac)
-          
+        data_client = obtain_client(self.rif) 
+        if data_client is not None:
+            codigo = data_client.get('code_galac')
+            return codigo
+       
+
     def get_phone(self, info_odoo):
         telefono = info_odoo[2][0]["phone"]
         if telefono != False:
