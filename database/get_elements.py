@@ -74,7 +74,7 @@ def codigo_vendedor(diario):
     
 
 def get_observaciones(fecha):
-    datos_fecha = fecha.strip().split('-')
+    datos_fecha = fecha.strip().split('/')
     mes = datos_fecha[1]
     meses = {
             "01": "ENERO",

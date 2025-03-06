@@ -27,6 +27,7 @@ def api_data(*args):
     
     operation_type = args[0]
     fecha = args[1]
+    print("FECHA: --------------------->>>> ", fecha)
     client_type = None
 
     if len(args) == 3:
@@ -35,7 +36,7 @@ def api_data(*args):
         else:
             client_type = args[2]
 
-    #diarios_pagos = open('diarios_pagos.txt', 'w')
+   
     clientes_facturas = open("clientes_facturas.txt", "w")
     clientes_faltantes = open("clientes_faltantes.txt", "w")
     process_data = open("process_payment.txt", "w")
@@ -59,7 +60,6 @@ def api_data(*args):
     models = xmlrpc.client.ServerProxy('{}/xmlrpc/2/object'.format(url))
 
     fecha_especifica = fecha  # Formato 'YYYY-MM-DD'
-    fecha_especifica = fecha.toString("yyyy-MM-dd")
 
     dominio = [
         ('invoice_date', '=', fecha_especifica),  # Filtro por fecha específica
@@ -197,7 +197,22 @@ def fact_operation(info_client, client_type):
 
 def create_clients(info_client):
     ob_cliente = Cliente(info_client)
-    rif = ob_cliente.rif
-    cliente = obtain_client(rif)
-    if cliente == None:
+
+    rif_digits = ob_cliente.rif.split("-")[1]
+
+    #Separar busqueda de rif por casos
+    rif_completo = rif_digits
+    rif_sin_ultimo_digito = rif_digits[:-1] 
+    rif_sin_primer_digito = rif_digits[1:]
+
+    rifs = [rif_completo, rif_sin_ultimo_digito, rif_sin_primer_digito]
+    
+    for rif in rifs:
+        result = obtain_client(rif)
+        if result != None:
+            return 0
+        
+    if result == None:
         ob_cliente.generate_data()
+    
+    

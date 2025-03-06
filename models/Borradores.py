@@ -5,8 +5,10 @@ import datetime
 import pandas as pd
 from database.operate_database import connection_database
 from database.database import get_cliente
+from database.inter_database import validate_draft
 import json
-import datetime
+from datetime import datetime
+
 
 
 class Borrador:
@@ -15,31 +17,27 @@ class Borrador:
     def __init__(self, info, cod_cliente, counter_prod, client_type):
         self.client_type = client_type
         self.impuesto = info[0]['amount_tax']
-        
         self.base_imponible = info[0]['invoice_payments_widget'][-1] #En divisas
-
         self.api_data = info[4]
         self.info = info[0]
         self.products = info[1]
         self.n_proceso = info[3]
-        
         self.cod_borrador = "B-{:09d}".format(self.n_proceso) 
         self.rif = info[0]['rif'].replace('-', '')
         self.cod_galac = cod_cliente
         self.borrador = self.cod_galac
         self.vendedor = '00001'
-        self.fecha_format = self.info['invoice_date']
+        print(self.info['invoice_date'])
+        self.fecha_format = self.convert_date_format(str(self.info['invoice_date']))
         self.observaciones = get_observaciones(self.fecha_format)
-       
         self.por_desc = 0
-        
         self.descuento = (self.por_desc/100) * self.base_imponible
         self.monto_exento_descuento = self.descuento
         self.base_imp_d_des = self.base_imponible - self.descuento
         self.total_renglones = self.base_imponible
         self.bs = 0 
         self.total_iva = self.calc_iva()
-        self.total_facturas = 0
+        self.total_facturas = self.base_imponible + self.total_iva
         self.cod_moneda = 0
         self.nivel_precio = 'PR1'
         self.cod_almacen = 'UNICO'
@@ -94,7 +92,7 @@ class Borrador:
         self.igtf_mon_local = 0
         self.igtf_mon_ext = 0
         self.alicuota_igtf = 3
-        self.descripcion = self.set_descripcion(self.products, counter_prod) #Campo descripcion en galac contiene es los prodcuto de la factura
+        self.descripcion = self.set_descripcion(self.products, counter_prod) #Campo descripcion en galac contiene es los productos de la factura
         self.alicuota_iva = 'ALG'
         self.cantidad = 1
         self.precio_sin_iva = self.base_imponible
@@ -109,28 +107,18 @@ class Borrador:
         self.cod_moneda = "VED"
         self.cod_moneda_cobro = "BOLIVARES"   
         self.widget_pagos = self.info["invoice_payments_widget"]
-        #self.info_pagos = info[5]
-        #self.pagos = ""
 
-
-    def search_client(self): #Se obtiene el rif de cliente para realizar la busqueda en la base de datos de Galac
-        connect = connection_database()
-        suscripciones = get_cliente(connect, self.rif) #ALmacena los codigos obtenidos de galac
-        
-        if suscripciones != None:
-            #print('suscripciones encontradas: ', suscripciones)
-            for fila in suscripciones: #Recorre cada una de las suscripciones
-                #print(fila)
-                self.generate_data(fila)
-            return suscripciones
-        else: 
-            return None
-        
-    #Esta funcion re ejecuta solo con clientes con montos en divisas
     
     def generate_data(self, codigo_cliente):
         cod_borrador = codigo_cliente
         return 0
+    
+    # Convertir el formato de fecha
+    def convert_date_format(self, date_str):
+        # Crear una fecha a partir de la cadena actual
+        date_obj = datetime.strptime(date_str, '%Y-%m-%d')  # Formato original
+        # Devolver la fecha en el nuevo formato
+        return date_obj.strftime('%d/%m/%Y')  # Formato deseado
     
     def get_vendedor(self):
         #print(self.info['invoice_payments_widget'])
@@ -145,8 +133,21 @@ class Borrador:
             return 0
         
     def get_borrador(self):
-        self.fecha_format = datetime.datetime.strptime(self.info['invoice_date'], '%Y-%m-%d').strftime('%d/%m/%Y')
         
+        """ 
+        try:
+            # Asegúrate de que 'invoice_date' esté en el formato 'YYYY-MM-DD'
+            self.fecha_format = datetime.strptime(self.info['invoice_date'], '%Y-%m-%d').strftime('%d/%m/%Y')
+            print("Fecha formateada:", self.fecha_format)
+        except ValueError as e:
+            print(f"Error al convertir la fecha: {e}")
+            return None
+        except KeyError as e:
+            print(f"Error: Falta la clave {e} en los datos de info.")
+            return None"
+        """
+
+
         # Crear lista de atributos
         atributos = [
             self.cod_borrador,
@@ -232,6 +233,14 @@ class Borrador:
             self.codigo_articulo,
             self.cod_moneda_cobro
         ]
+
+        print("TYPE CODE GALAC: ", type(self.cod_galac), "VALOR: ", self.cod_galac)
+        if self.cod_galac == "":
+            return None
+        
+        #Validar si el borrador no existe, si existe se cierra el proceso
+        if validate_draft(atributos) == None:
+            return None
 
         arch = open("clientes_facturas.txt", "a")
         #si el cliente es en bolivares
