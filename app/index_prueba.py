@@ -203,7 +203,7 @@ class VentanaPrincipal(QWidget):
 
     def ejecutar_api_data(self, tipos_clientes):
         self.main_window = QApplication.activeWindow()
-        while not self.main_window.cancelar_hilos:
+        if not self.main_window.cancelar_hilos:
             # Aquí tus operaciones de API:
             fecha_seleccionada = self.main_window.date_edit.date().toString("yyyy-MM-dd")  # Obtener la fecha seleccionada
             try:
@@ -211,7 +211,7 @@ class VentanaPrincipal(QWidget):
                 self.leer_contenido_archivo(archivo_resultado)
             except Exception as e:
                 print(f"Error en api_data: {str(e)}")
-                break  # Salimos del bucle si hay un error
+                
 
         if self.main_window.cancelar_hilos:
             print("Proceso cancelado.")
@@ -275,7 +275,7 @@ class VentanaArchivo(QWidget):
 
     def ejecutar_api_data(self):
         self.main_window = QApplication.activeWindow()
-        while not self.main_window.cancelar_hilos:
+        if not self.main_window.cancelar_hilos:
             
             fecha_seleccionada = self.main_window.date_edit.date().toString("yyyy-MM-dd")
             try:
@@ -283,7 +283,6 @@ class VentanaArchivo(QWidget):
                 self.leer_contenido_archivo(archivo_resultado)
             except Exception as e:
                 print(f"Error en api_data en VentanaArchivo: {str(e)}")
-                break  # Salimos del bucle si hay un error
 
         if self.main_window.cancelar_hilos:
             print("Proceso cancelado en VentanaArchivo.")

@@ -338,8 +338,11 @@ def validate_draft(atributos):
     request_url = f"{base_url}/consultar-borrador/?codigo_galac={atributos[2]}&"
     request_url += f"fecha={datetime.strptime(atributos[1], '%d/%m/%Y')}&"
     request_url += f"observaciones={atributos[4]}&"
+
+    """ 
     request_url += f"total_facturas={atributos[9]}&"
-    request_url += f"base_imp_d_desc={atributos[6]}"
+    request_url += f"base_imp_d_desc={atributos[6]}""
+    """
 
     print("SOLICITUD HACIA:", request_url)
 

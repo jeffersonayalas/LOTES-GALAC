@@ -238,28 +238,28 @@ class Borrador:
         if self.cod_galac == "":
             return None
         
+        result_val = validate_draft(atributos).get('exists')
+        print("ESTADO DE BORRADOR: ", result_val)
         #Validar si el borrador no existe, si existe se cierra el proceso
-        if validate_draft(atributos) == None:
-            return None
-
-        arch = open("clientes_facturas.txt", "a")
-        #si el cliente es en bolivares
-        if self.client_type == 'Clientes en Bolivares' and self.impuesto != 0.0:
-            for dato in atributos:
-                arch.write(str(dato) + "\t")
-            arch.write("\n")
-            return atributos
-        elif self.client_type == 'Clientes en Divisas' and self.impuesto == 0.0:
-            for dato in atributos:
-                arch.write(str(dato) + "\t")
-            arch.write("\n")
-            return atributos
-        else:
-            if len(self.client_type) == 2:
+        if not result_val:
+            arch = open("clientes_facturas.txt", "a")
+            #si el cliente es en bolivares
+            if self.client_type == 'Clientes en Bolivares' and self.impuesto != 0.0:
                 for dato in atributos:
                     arch.write(str(dato) + "\t")
                 arch.write("\n")
                 return atributos
+            elif self.client_type == 'Clientes en Divisas' and self.impuesto == 0.0:
+                for dato in atributos:
+                    arch.write(str(dato) + "\t")
+                arch.write("\n")
+                return atributos
+            else:
+                if len(self.client_type) == 2:
+                    for dato in atributos:
+                        arch.write(str(dato) + "\t")
+                    arch.write("\n")
+                    return atributos
 
 
     def pagos(self):
