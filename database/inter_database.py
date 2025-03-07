@@ -133,7 +133,7 @@ def update_database(archivo_txt):
             try:
                 datos_cliente = linea.strip().split(";")  # Eliminar espacios en blanco y dividir la línea
 
-                if len(datos_cliente) == 27 or len(datos_cliente) == 26:  # Verifica que la línea tenga 26 o 27 elementos
+                if len(datos_cliente) == 25 or len(datos_cliente) == 26:  # Verifica que la línea tenga 26 o 27 elementos
                     # Asignar campos a variables
                     cod_galac = datos_cliente[0]
                     nombre = datos_cliente[1]

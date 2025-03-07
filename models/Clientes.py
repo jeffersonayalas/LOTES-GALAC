@@ -54,39 +54,6 @@ class Cliente:
         self.info[0]['invoice_payments_widget'].append(self.process_payment()) #Arreglo que contiene los pagos
         self.info_factura = info_odoo
     
-        """
-            codigo_cliente
-            nombre
-            RIF
-            NIT
-            Cuenta Contable CxC
-            Cuenta Contable Ingresos
-            Status
-            Telefono
-            Fax
-            Direccion
-            Ciudad
-            Zona Postal 
-            Zona de cobranzas
-            Secto de negocio
-            Codigo Vendedor
-            Es extranjero
-            Correo Electronico
-            Persona Contacto
-            Razon Inactividad
-            Activar aviso al escoger
-            Cuenta contable anticipo
-            Nivel de precio
-            Origen del cliente
-            Fecha de creacion del cliente
-
-            ###Si el cliente es Asociado En Cta. De Participación colocar también los siguientes campos: ###
-            
-            Dia cumpleanos
-            Mes cumpleanos
-            Correspondencia por enviar
-            Fecha cliente desde: igual a fecha de creacion del cliente
-        """
 
     def generate_data(self):
         
@@ -101,7 +68,6 @@ class Cliente:
             self.telefono, 
             self.fax, 
             self.direccion, 
-            self.estado, 
             self.ciudad, 
             self.zona_postal, 
             self.zona_cobranza, 
