@@ -104,7 +104,7 @@ class Borrador:
         self.campo_extra_1 = ""
         self.campo_extra_2 = ""
         #self.codigo_articulo = str(get_art(self.descripcion))
-        self.codigo_articulo = 'P0001'
+        self.codigo_articulo = str(get_art(self.descripcion))
         self.cod_moneda = "VED"
         self.cod_moneda_cobro = "BOLIVARES"   
         self.widget_pagos = self.info["invoice_payments_widget"]
