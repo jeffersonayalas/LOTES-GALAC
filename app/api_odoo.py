@@ -97,7 +97,7 @@ def api_data(*args):
             rif_cliente = result_execute[0]['rif']
             street = result_execute[0]['street']
             
-            if rif_cliente == False or street == False or 'J' in rif_cliente or 'j' in rif_cliente:
+            if rif_cliente == False or street == False:
                 archive.write("\n" + str(result_execute[0]))
                 continue
 
