@@ -14,6 +14,7 @@ class Cliente:
         self.codigo = self.code_client()
         self.nombre = get_nombre(info_odoo[0]['invoice_partner_display_name'])
         self.rif = info_odoo[0]['rif']
+        self.rif_exp = self.rif.replace("-", "")
         self.nit = "" #No se utiliza en netcom por lo tanto va vacio
         self.cuenta_contable_cxc = ""
         self.c_contable_ingresos = ""
@@ -60,7 +61,7 @@ class Cliente:
         atributos = [
             self.codigo,
             self.nombre, 
-            self.rif, 
+            self.rif_exp, 
             self.nit, 
             self.cuenta_contable_cxc, 
             self.c_contable_ingresos, 

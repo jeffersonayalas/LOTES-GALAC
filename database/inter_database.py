@@ -12,7 +12,7 @@ import re
 from datetime import datetime
 
 
-DB_HOST="http://127.0.0.1:8000"
+DB_HOST="http://10.3.0.252:8080"
 
 
 def insert_clients(cliente_data):

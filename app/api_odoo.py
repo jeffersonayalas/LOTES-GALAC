@@ -1,17 +1,24 @@
 import xmlrpc.client
 from models.Clientes import Cliente
 import json
-#from database.database import get_cliente
-#from database.operate_database import connection_database
 from database.inter_database import obtain_client
+from dotenv import load_dotenv  # Importar python-dotenv
+import os 
 
+
+# Cargar variables de entorno desde el archivo .env
+load_dotenv()
+
+
+# Configuración de la conexión a la base de datos
+#DATABASE_URL = "postgresql://postgres:python24@localhost:5432/data_facturas"
 
 data_db = {
-        'url' : 'https://netcomplus.odoo.com',  # Cambia por la URL de tu servidor
-        'db' : 's2ctechsoporte-netcom-main-7643792',
-        'username' : 'desarrollo@netcomplusve.com',
-        'api_key' : '42f6ff04b63fb7ec1518cdb76f4c037018ca5429',  # Considera usar el API key
-        'password' : 'python24'  # Este podría no ser necesario si estás usando el API Key
+        'url'      : os.getenv('ODOO_URL'),
+        'db'       : os.getenv('ODOO_DB'),
+        'username' : os.getenv('ODOO_USERNAME'),
+        'password' : os.getenv('ODOO_PASSW'),
+        'api_key'  : os.getenv('API_KEY')
     }
 
 url = data_db.get('url')
@@ -19,6 +26,7 @@ db = data_db.get('db')
 username = data_db.get('username')
 api_key = data_db.get('api_key')
 password = data_db.get('password')
+
 
 #recibe tipo de operacion y realiza una accion de acuerdo a ese tipo
 def api_data(*args):
@@ -41,7 +49,7 @@ def api_data(*args):
     clientes_faltantes = open("clientes_faltantes.txt", "w")
     process_data = open("process_payment.txt", "w")
     archive = open("api_data.txt", "w")
-    
+    errores = open("errores.txt", "w")
     
     #Creamos una lista para almacenar clientes
     clientes = []
@@ -87,7 +95,10 @@ def api_data(*args):
 
             #Obtener el rif de la factura
             rif_cliente = result_execute[0]['rif']
-            if rif_cliente == False:
+            street = result_execute[0]['street']
+            
+            if rif_cliente == False or street == False:
+                archive.write("\n" + str(result_execute[0]))
                 continue
 
             count += 1 #Corresponde con el numero de proceso
