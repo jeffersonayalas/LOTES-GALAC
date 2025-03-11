@@ -3,6 +3,7 @@ from psycopg2 import sql
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT # <-- ADD THIS LINE
 from database.database import insertar_cliente, leer_txt, consultar_data, get_code_client
 import requests
+from database.inter_database import obtain_client
 
 
 # Ejemplo de uso (REEMPLAZA con tus datos):

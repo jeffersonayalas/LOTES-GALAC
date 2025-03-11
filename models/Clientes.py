@@ -1,6 +1,6 @@
 from database.operate_database import get_data
 from database.get_elements import codigo_vendedor, get_nombre
-from database.inter_database import obtain_client, buscar_cliente_odoo
+from database.inter_database import obtain_client, buscar_cliente_odoo, verify_client_by_cod_galac
 from models.Borradores import *
 import datetime
 import random
@@ -200,7 +200,7 @@ class Cliente:
         codigo_cliente = f"{primera_letra}{dos_digitos}{tres_letras_1}{un_digito}{tres_letras_2}"
 
         # Aca se realiza la consulta a la base de datos
-        if get_data(codigo_cliente) == True:
+        if verify_client_by_cod_galac(codigo_cliente) == True:
             # Si el código ya existe, llamamos a la función nuevamente
             return self.code_client()
         else:

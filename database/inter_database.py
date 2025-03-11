@@ -359,8 +359,35 @@ def validate_draft(atributos):
     except Exception as e:
         print(f'Error durante la solicitud: {e}')
         return None
-    
 
+def verify_client_by_cod_galac(cod_galac: str) -> bool:
+    base_url = DB_HOST  # Asegúrate de que DB_HOST esté definido con la URL base de tu API
+    headers = {
+        'Content-Type': 'application/json'
+    }
+
+    print("VERIFICACIÓN DE CLIENTE:", cod_galac)
+
+    # Construye la URL con el parámetro cod_galac
+    request_url = f'{base_url}/buscar-cliente-cod-galac/?cod_galac={cod_galac}'
+    print("SOLICITUD HACIA:", request_url)
+
+    try:
+        # Realizar la petición GET para verificar el cliente
+        response = requests.get(request_url, headers=headers)
+
+        if response.status_code == 200:  # Código de éxito
+            # Si el cliente existe, se espera un mensaje de éxito
+            result = response.json()
+            return result.get("exists")
+        else:
+            print(f'Error: {response.status_code}, {response.text}')
+            return False
+    except Exception as e:
+        print(f'Error durante la solicitud: {e}')
+        return False
+
+    
 ############################################################################################################################
                                 ### ------------------ ODOO ID --------------------- ###
 ############################################################################################################################
