@@ -1,5 +1,3 @@
-from trash.demo import depurar_nombre
-from trash.data import open_archives
 from database.get_elements import codigo_vendedor
 from trash.exportar_clientes import txt_to_csv
 
