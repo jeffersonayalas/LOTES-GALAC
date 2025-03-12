@@ -3,7 +3,6 @@ from database.get_elements import codigo_vendedor, get_observaciones, get_art, g
 from trash.fila import get_celda
 import datetime
 import pandas as pd
-from database.operate_database import connection_database
 from database.database import get_cliente
 from database.inter_database import validate_draft
 import json

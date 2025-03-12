@@ -1,4 +1,4 @@
-from database.operate_database import get_data
+
 from database.get_elements import codigo_vendedor, get_nombre
 from database.inter_database import obtain_client, buscar_cliente_odoo, verify_client_by_cod_galac
 from models.Borradores import *
@@ -10,7 +10,6 @@ import string
 class Cliente:
     def __init__(self, info_odoo): #data es un diccionario que contiene los campos de factura obtenidos de odoo
         self.info = info_odoo
-        self.connect = connection_database()
         self.codigo = self.code_client()
         self.nombre = get_nombre(info_odoo[0]['invoice_partner_display_name'])
         self.rif = info_odoo[0]['rif']
