@@ -17,7 +17,7 @@ class Borrador:
         self.client_type = client_type
         self.suscripcion_odoo = self.info.get("invoice_origin")
         self.impuesto = info[0]['amount_tax']
-        self.base_imponible = info[0]['invoice_payments_widget'][-1] #En divisas
+        self.base_imponible = info[0].get('invoice_payments_widget')[-1] #En divisas
         self.api_data = info[4]
         self.products = info[1]
         self.n_proceso = info[3]
@@ -26,8 +26,7 @@ class Borrador:
         self.cod_galac = cod_cliente
         self.borrador = self.cod_galac
         self.vendedor = '00001'
-        print(self.info['invoice_date'])
-        self.fecha_format = self.convert_date_format(str(self.info['invoice_date']))
+        self.fecha_format = self.convert_date_format(str(self.info.get('invoice_date')))
         self.observaciones = get_observaciones(self.fecha_format) + " - Suscripcion: " + self.suscripcion_odoo
         self.por_desc = 0
         self.descuento = (self.por_desc/100) * self.base_imponible
@@ -105,7 +104,7 @@ class Borrador:
         self.codigo_articulo = str(get_art(self.descripcion))
         self.cod_moneda = "VED"
         self.cod_moneda_cobro = "BOLIVARES"   
-        self.widget_pagos = self.info["invoice_payments_widget"]
+        self.widget_pagos = self.info.get("invoice_payments_widget")
         
 
     def generate_data(self, codigo_cliente):
@@ -121,7 +120,7 @@ class Borrador:
     
     def get_vendedor(self):
         #print(self.info['invoice_payments_widget'])
-        if self.info['invoice_payments_widget'][0] != None:
+        if self.info.get('invoice_payments_widget')[0] != None:
             #diario_inicial = self.info['invoice_payments_widget']['content'][0]['journal_name']
             #print(diario_inicial)
             return 0

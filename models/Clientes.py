@@ -11,8 +11,8 @@ class Cliente:
     def __init__(self, info_odoo): #data es un diccionario que contiene los campos de factura obtenidos de odoo
         self.info = info_odoo
         self.codigo = self.code_client()
-        self.nombre = get_nombre(info_odoo[0]['invoice_partner_display_name'])
-        self.rif = info_odoo[0]['rif']
+        self.nombre = get_nombre(info_odoo[0].get('invoice_partner_display_name'))
+        self.rif = info_odoo[0].get('rif')
         self.rif_exp = self.rif.replace("-", "")
         self.nit = "" #No se utiliza en netcom por lo tanto va vacio
         self.cuenta_contable_cxc = ""
@@ -20,7 +20,7 @@ class Cliente:
         self.status = "Activo"
         self.telefono = self.get_phone(info_odoo)
         self.fax = "" #NO se usa el fax
-        self.direccion = info_odoo[0]["street"]
+        self.direccion = info_odoo[0].get("street")
         state_id = info_odoo[2][0].get('state_id', None)
 
         if isinstance(state_id, (list, dict)) and len(state_id) > 1:
@@ -33,9 +33,9 @@ class Cliente:
         self.zona_postal = "" #No se usa la zona postal
         self.zona_cobranza = self.ciudad
         self.sector_de_negocio = "No Asignado"
-        self.codigo_vendedor =  codigo_vendedor(info_odoo[0]['journal_id'][1])
+        self.codigo_vendedor =  codigo_vendedor(info_odoo[0].get('journal_id')[1])
         self.extranjero = 'No'
-        self.email = info_odoo[2][0]['email']
+        self.email = info_odoo[2][0].get('email')
         self.persona_contacto = self.nombre
         self.razon_inactividad = ""
         self.activar_aviso = "N"
@@ -43,15 +43,15 @@ class Cliente:
         self.cuenta_contable_anticipo = ""
         self.nivel_precio = 0
         self.origen_cliente = 0
-        self.fecha_creacion = datetime.datetime.strptime(info_odoo[0]['invoice_date'], '%Y-%m-%d').strftime('%d/%m/%Y')
+        self.fecha_creacion = datetime.datetime.strptime(info_odoo[0].get('invoice_date'), '%Y-%m-%d').strftime('%d/%m/%Y')
         self.products_client = info_odoo[1] 
         
         self.borradores = [] 
         self.suscription = self.get_suscription()
         self.n_proceso = info_odoo[3]
         self.record_id = self.rif
-        self.pagos = self.info[0]['invoice_payments_widget']
-        self.info[0]['invoice_payments_widget'].append(self.process_payment()) #Arreglo que contiene los pagos
+        self.pagos = self.info[0].get('invoice_payments_widget')
+        self.info[0].get('invoice_payments_widget').append(self.process_payment()) #Arreglo que contiene los pagos
         self.info_factura = info_odoo
     
 
@@ -146,8 +146,8 @@ class Cliente:
 
         if self.pagos != [None]: 
             for pay in self.pagos:
-                monto_pago = pay['amount']
-                rate = pay['rate']
+                monto_pago = pay.get('amount')
+                rate = pay('rate')
                 base_imponible_desc += monto_pago * rate
                 moneda = "Bs"
 
