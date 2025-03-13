@@ -44,7 +44,7 @@ class Cliente:
         self.nivel_precio = 0
         self.origen_cliente = 0
         self.fecha_creacion = datetime.datetime.strptime(info_odoo[0]['invoice_date'], '%Y-%m-%d').strftime('%d/%m/%Y')
-        self.products_client = info_odoo[1] #Se guarda un arreglo con las suscripciones (Codigo de Galac)
+        self.products_client = info_odoo[1] 
         
         self.borradores = [] 
         self.suscription = self.get_suscription()
@@ -88,30 +88,38 @@ class Cliente:
         rif_contenido = f"{self.rif}"  # Formatear RIF para comparación
         archivo_faltantes = "clientes_faltantes.txt"
 
-        # Leer el archivo existente para verificar duplicados
-        try:
-            with open(archivo_faltantes, "r") as arch:
-                lineas = arch.readlines()
+        print("PRODUCTOS DE CLIENTE -------------------------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>.", self.products_client)
 
-                # Verificar si el RIF ya existe
-                for linea in lineas:
-                    if rif_contenido in linea:  # Si el RIF ya está en la línea, no lo agregues
-                        print(f"El cliente con RIF {self.rif} ya está en el archivo, no se agregará.")
-                        return  # Devolver si ya existe
-
-        except FileNotFoundError:
-            # Si el archivo no existe, está bien, simplemente se creará
-            pass
-
-        print("SUSCRIPCION -------- >>>>>> ", self.suscription)
-        
-        if self.suscription == False:
-            # Si el RIF no está presente, escribir los atributos en el archivo
-            with open(archivo_faltantes, "a") as arch:
+        if '[SRV-CUA-0008] Servicio Instalación de clientes ' in self.products_client:
+            with open('clientes_nuevos.txt', 'a') as clientes_nuevos:
                 for dato in atributos:
-                    arch.write(str(dato) + ";")
-                arch.write("\n")
-    
+                    clientes_nuevos.write(str(dato) + ";")
+                clientes_nuevos.write("\n")
+        else:
+            # Leer el archivo existente para verificar duplicados
+            try:
+                with open(archivo_faltantes, "r") as arch:
+                    lineas = arch.readlines()
+
+                    # Verificar si el RIF ya existe
+                    for linea in lineas:
+                        if rif_contenido.replace("-", "") in linea:  # Si el RIF ya está en la línea, no lo agregues
+                            print(f"El cliente con RIF {self.rif} ya está en el archivo, no se agregará.")
+                            return  # Devolver si ya existe
+
+            except FileNotFoundError:
+                # Si el archivo no existe, está bien, simplemente se creará
+                pass
+
+            print("SUSCRIPCION -------- >>>>>> ", self.suscription)
+            
+            if self.suscription == False:
+                # Si el RIF no está presente, escribir los atributos en el archivo
+                with open(archivo_faltantes, "a") as arch:
+                    for dato in atributos:
+                        arch.write(str(dato) + ";")
+                    arch.write("\n")
+        
     
     def generar_borrador(self, client_type): #Se obtiene el rif de cliente para realizar la busqueda en la base de datos de Galac
         #Se deben desglosar los montos al momento de enviarlos al borrador 

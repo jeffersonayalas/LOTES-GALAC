@@ -1,9 +1,16 @@
+import sys
+import os 
+
+# Añadir la carpeta superior al PYTHONPATH
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import xmlrpc.client
 from models.Clientes import Cliente
 import json
 from database.inter_database import obtain_client
 from dotenv import load_dotenv  # Importar python-dotenv
-import os 
+
+
 
 
 # Cargar variables de entorno desde el archivo .env
@@ -28,6 +35,19 @@ api_key = data_db.get('api_key')
 password = data_db.get('password')
 
 
+# Conexión al servicio común para autenticación
+common = xmlrpc.client.ServerProxy('{}/xmlrpc/2/common'.format(url))
+message = common.version()
+print("Odoo Version:", message)
+
+# Autenticación
+uid = common.authenticate(db, username, password, {})
+print("User ID:", uid)
+
+# Conexión al servicio de modelos
+models = xmlrpc.client.ServerProxy('{}/xmlrpc/2/object'.format(url))
+
+
 #recibe tipo de operacion y realiza una accion de acuerdo a ese tipo
 def api_data(*args):
     
@@ -45,29 +65,16 @@ def api_data(*args):
             client_type = args[2]
 
    
-    clientes_facturas = open("clientes_facturas.txt", "w", encoding='cp1252')
-    clientes_faltantes = open("clientes_faltantes.txt", "w", encoding='cp1252')
-    process_data = open("process_payment.txt", "w", encoding='cp1252')
+    clientes_facturas = open("clientes_facturas.txt", "w")
+    clientes_faltantes = open("clientes_faltantes.txt", "w")
+    process_data = open("process_payment.txt", "w")
     archive = open("api_data.txt", "w")
-    errores = open("errores.txt", "w", encoding='cp1252')
-    clientes_juridicos = open("clientes_juridicos.txt", "w", encoding='cp1252')
-    clientes_nuevos = open("clientes_nuevos.txt", "w", encoding='cp1252')
+    errores = open("errores.txt", "w")
+    clientes_juridicos = open("clientes_juridicos.txt", "w")
     
     #Creamos una lista para almacenar clientes
     clientes = []
     info = []
-
-    # Conexión al servicio común para autenticación
-    common = xmlrpc.client.ServerProxy('{}/xmlrpc/2/common'.format(url))
-    message = common.version()
-    print("Odoo Version:", message)
-
-    # Autenticación
-    uid = common.authenticate(db, username, password, {})
-    print("User ID:", uid)
-
-    # Conexión al servicio de modelos
-    models = xmlrpc.client.ServerProxy('{}/xmlrpc/2/object'.format(url))
 
     fecha_especifica = fecha  # Formato 'YYYY-MM-DD'
 
@@ -81,6 +88,7 @@ def api_data(*args):
     record_ids = models.execute_kw(db, uid, api_key, 'account.move', 'search', [dominio])
     print("Total records found:", len(record_ids))
 
+    
     # Especificar los campos que deseas obtener
     fields_to_read = [
         'id', 'name', 'invoice_origin','move_type','partner_id', 'invoice_partner_display_name', 
@@ -88,6 +96,17 @@ def api_data(*args):
         'invoice_line_ids', 'journal_id', 'street', 'amount_total_signed', 'amount_total_in_currency_signed', 'payment_state',
         'amount_tax', 'amount_untaxed', 'igtf_invoice_amount', 'amount_residual', 'invoice_payments_widget', 'payment_id' ]  # Agrega o ajusta los campos según sea necesario
     
+
+    """
+    # Obtener todos los campos del modelo account.move
+    all_fields = models.execute_kw(db, uid, api_key, 'account.move', 'fields_get', [])
+
+    # Extraer solo los nombres de los campos
+    fields_to_read = list(all_fields.keys())
+
+    fields_to_read = ['invoice_origin']
+    """
+
     # Leer los registros obtenidos
     if record_ids:
         count = 0
@@ -95,6 +114,10 @@ def api_data(*args):
         for record_id in record_ids:
             result_execute = models.execute_kw(db, uid, api_key, 'account.move', 'read', [[record_id]], {'fields': fields_to_read})
 
+            print(result_execute[0].get('invoice_origin'))
+           
+
+            
             #Obtener el rif de la factura
             rif_cliente = result_execute[0]['rif']
             street = result_execute[0]['street']
@@ -103,11 +126,10 @@ def api_data(*args):
                 errores.write("\n" + str(result_execute[0]))
                 continue
 
-            """ 
+            
             if "j" in rif_cliente.lower():
                 clientes_juridicos.write("\n" + str(result_execute[0]))
-                continue"
-            """
+                continue
 
             count += 1 #Corresponde con el numero de proceso
 
@@ -127,24 +149,11 @@ def api_data(*args):
                     prod = line['product_id'][1].replace("\n", " ")
                     productos.append(prod)
 
-            print("PRODUCTOS ---------------------------->>>>>>>", productos)
             
-            pagos = cons_payments(result_execute[0]["invoice_payments_widget"], models, data_db, uid)
-
+            pagos = cons_payments(result_execute[0]["invoice_payments_widget"])
+            #suscripcion = obtener_codigo_suscripcion(rif_cliente)
+            #print("SUSCRIPCION DEL CLIENTE ==============>>>>>>>>>>>>>", suscripcion)
             if pagos == None:
-                continue
-
-            if '[SRV-CUA-0008] Servicio Instalación de clientes ' in productos:
-                clientes_nuevos.write(str(result_execute[0]) + '\n')
-
-            
-            #Obtener el rif de la factura
-            rif_cliente = result_execute[0]['rif']
-            street = result_execute[0]['street']
-            invoice_origin = result_execute[0].get('invoice_origin')
-            
-            if rif_cliente == False or street == False or invoice_origin == False:
-                errores.write("\n" + str(result_execute[0]))
                 continue
 
             result_execute[0]['invoice_payments_widget'] = pagos
@@ -158,6 +167,7 @@ def api_data(*args):
             print('Numero de clientes procesados:  ' + str(count))
             process_data = open("process_payment.txt", 'a')
             process_data.write(str(pagos) + "\n")
+            
     else:
         print("No records found.")
     archive.close()  # Asegúrate de cerrar el archivo después de usarlo
@@ -172,37 +182,9 @@ def api_data(*args):
         clientes_facturas_1 = open('clientes_facturas.txt', 'r')
         clientes_facturas_1.seek(0)
         return clientes_facturas_1
-    
 
 
-def fact_operation(info_client, client_type):
-    #Recorremos los pagos del cliente para ver si todos son en bs o en dolares
-    ob_cliente = Cliente(info_client)
-    ob_cliente.generar_borrador(client_type)
-
-def create_clients(info_client):
-    ob_cliente = Cliente(info_client)
-
-    rif_digits = ob_cliente.rif.split("-")[1]
-
-    #Separar busqueda de rif por casos
-    rif_completo = rif_digits
-    rif_sin_ultimo_digito = rif_digits[:-1] 
-    rif_sin_primer_digito = rif_digits[1:]
-
-    rifs = [rif_completo, rif_sin_ultimo_digito, rif_sin_primer_digito]
-    
-    for rif in rifs:
-        result = obtain_client(rif)
-        if result != None:
-            return 0
-        
-    if result == None:
-        ob_cliente.generate_data()
-    
-
-
-def cons_payments(info_pagos, models, data_db, uid):
+def cons_payments(info_pagos):
     
     pay_id = info_pagos
     
@@ -252,5 +234,30 @@ def cons_payments(info_pagos, models, data_db, uid):
         return None
    
 
+def fact_operation(info_client, client_type):
+    #Recorremos los pagos del cliente para ver si todos son en bs o en dolares
+    ob_cliente = Cliente(info_client)
+    ob_cliente.generar_borrador(client_type)
 
+def create_clients(info_client):
+    ob_cliente = Cliente(info_client)
+
+    rif_digits = ob_cliente.rif.split("-")[1]
+
+    #Separar busqueda de rif por casos
+    rif_completo = rif_digits
+    rif_sin_ultimo_digito = rif_digits[:-1] 
+    rif_sin_primer_digito = rif_digits[1:]
+
+    rifs = [rif_completo, rif_sin_ultimo_digito, rif_sin_primer_digito]
     
+    for rif in rifs:
+        result = obtain_client(rif)
+        if result != None:
+            return 0
+        
+    if result == None:
+        ob_cliente.generate_data()
+
+
+api_data(1, '2025-03-12', 'Clientes en Divisas')

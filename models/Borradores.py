@@ -1,5 +1,5 @@
 import psycopg2
-from database.get_elements import codigo_vendedor, get_observaciones, get_art, get_fecha
+from database.get_elements import get_observaciones, get_art, get_fecha
 from trash.fila import get_celda
 import datetime
 import pandas as pd
@@ -11,24 +11,24 @@ from datetime import datetime
 
 
 class Borrador:
-
     #Campos requeridos: rif, tasa_dolar, diario, pagos (pagos con fecha), base imponible de la factura, descuento, campo_bs, iva, 
     def __init__(self, info, cod_cliente, counter_prod, client_type):
+        self.info = info[0]
         self.client_type = client_type
+        self.suscripcion_odoo = self.info.get("invoice_origin")
         self.impuesto = info[0]['amount_tax']
         self.base_imponible = info[0]['invoice_payments_widget'][-1] #En divisas
         self.api_data = info[4]
-        self.info = info[0]
         self.products = info[1]
         self.n_proceso = info[3]
-        self.cod_borrador = "B-{:09d}".format(self.n_proceso) 
+        self.cod_borrador = "B-A{:08d}".format(self.n_proceso) 
         self.rif = info[0]['rif'].replace('-', '')
         self.cod_galac = cod_cliente
         self.borrador = self.cod_galac
         self.vendedor = '00001'
         print(self.info['invoice_date'])
         self.fecha_format = self.convert_date_format(str(self.info['invoice_date']))
-        self.observaciones = get_observaciones(self.fecha_format)
+        self.observaciones = get_observaciones(self.fecha_format) + " - Suscripcion: " + self.suscripcion_odoo
         self.por_desc = 0
         self.descuento = (self.por_desc/100) * self.base_imponible
         self.monto_exento_descuento = self.descuento
@@ -102,13 +102,12 @@ class Borrador:
         self.codigo_vendedor_3 = ""
         self.campo_extra_1 = ""
         self.campo_extra_2 = ""
-        #self.codigo_articulo = str(get_art(self.descripcion))
         self.codigo_articulo = str(get_art(self.descripcion))
         self.cod_moneda = "VED"
         self.cod_moneda_cobro = "BOLIVARES"   
         self.widget_pagos = self.info["invoice_payments_widget"]
+        
 
-    
     def generate_data(self, codigo_cliente):
         cod_borrador = codigo_cliente
         return 0
@@ -129,25 +128,11 @@ class Borrador:
 
     def get_cod_borrador(self):
         if len(self.products) > 1:
-            #se mantiene el codigo borrador para todos los producto
+            #se mantiene el codigo borrador para todos los productos
             return 0
         
     def get_borrador(self):
         
-        """ 
-        try:
-            # Asegúrate de que 'invoice_date' esté en el formato 'YYYY-MM-DD'
-            self.fecha_format = datetime.strptime(self.info['invoice_date'], '%Y-%m-%d').strftime('%d/%m/%Y')
-            print("Fecha formateada:", self.fecha_format)
-        except ValueError as e:
-            print(f"Error al convertir la fecha: {e}")
-            return None
-        except KeyError as e:
-            print(f"Error: Falta la clave {e} en los datos de info.")
-            return None"
-        """
-
-
         # Crear lista de atributos
         atributos = [
             self.cod_borrador,
@@ -244,6 +229,7 @@ class Borrador:
         if not result_val:
             arch = open("clientes_facturas.txt", "a")
             #si el cliente es en bolivares
+           
             if self.client_type == 'Clientes en Bolivares' and self.impuesto != 0.0:
                 for dato in atributos:
                     arch.write(str(dato) + "\t")

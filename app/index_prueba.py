@@ -302,9 +302,15 @@ class VentanaArchivo(QWidget):
         if data[0]:
             self.texto.setPlainText(data[1])  # Mostrar el contenido en QTextEdit
             #Aqui se realiza llamada para actualizacion de base de datos 
-            self.actualizar_database()
+            """ 
+            result = self.actualizar_database()
 
-            self.etiqueta.setText("Base de datos actualizada")
+            if result:
+                self.etiqueta.setText("Base de datos actualizada")
+            else:
+                self.etiqueta.setText("Terminado")"
+            """
+            self.etiqueta.setText("Terminado")
         else:
             self.texto.setPlainText("")  # Limpiar el contenido anterior
             self.etiqueta.setText(data[1])  # Mostrar error en la interfaz de usuario
