@@ -88,7 +88,7 @@ class Cliente:
         rif_contenido = f"{self.rif}"  # Formatear RIF para comparación
         archivo_faltantes = "clientes_faltantes.txt"
 
-        print("PRODUCTOS DE CLIENTE -------------------------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>.", self.products_client)
+     
 
         if '[SRV-CUA-0008] Servicio Instalación de clientes ' in self.products_client:
             with open('clientes_nuevos.txt', 'a') as clientes_nuevos:
@@ -111,7 +111,6 @@ class Cliente:
                 # Si el archivo no existe, está bien, simplemente se creará
                 pass
 
-            print("SUSCRIPCION -------- >>>>>> ", self.suscription)
             
             if self.suscription == False:
                 # Si el RIF no está presente, escribir los atributos en el archivo
@@ -147,7 +146,7 @@ class Cliente:
         if self.pagos != [None]: 
             for pay in self.pagos:
                 monto_pago = pay.get('amount')
-                rate = pay('rate')
+                rate = pay.get('rate')
                 base_imponible_desc += monto_pago * rate
                 moneda = "Bs"
 

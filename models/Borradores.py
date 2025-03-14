@@ -1,11 +1,9 @@
-import psycopg2
 from database.get_elements import get_observaciones, get_art, get_fecha
 from trash.fila import get_celda
 import datetime
 import pandas as pd
 from database.database import get_cliente
 from database.inter_database import validate_draft
-import json
 from datetime import datetime
 
 
@@ -113,13 +111,10 @@ class Borrador:
     
     # Convertir el formato de fecha
     def convert_date_format(self, date_str):
-        # Crear una fecha a partir de la cadena actual
         date_obj = datetime.strptime(date_str, '%Y-%m-%d')  # Formato original
-        # Devolver la fecha en el nuevo formato
         return date_obj.strftime('%d/%m/%Y')  # Formato deseado
     
     def get_vendedor(self):
-        #print(self.info['invoice_payments_widget'])
         if self.info.get('invoice_payments_widget')[0] != None:
             #diario_inicial = self.info['invoice_payments_widget']['content'][0]['journal_name']
             #print(diario_inicial)
@@ -218,12 +213,12 @@ class Borrador:
             self.cod_moneda_cobro
         ]
 
-        print("TYPE CODE GALAC: ", type(self.cod_galac), "VALOR: ", self.cod_galac)
+       
         if self.cod_galac == "":
             return None
         
         result_val = validate_draft(atributos).get('exists')
-        print("ESTADO DE BORRADOR: ", result_val)
+       
         #Validar si el borrador no existe, si existe se cierra el proceso
         if not result_val:
             arch = open("clientes_facturas.txt", "a")

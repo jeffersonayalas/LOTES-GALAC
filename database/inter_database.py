@@ -24,9 +24,6 @@ def insert_clients(cliente_data):
 
     print("VERIFICACION DE CLIENTE:", cliente_data)
 
-    # Realizar la petición POST para insertar un cliente
-    print("SOLICITUD HACIA:", f'{base_url}/clientes/')
-
     try:
         if cliente_data != None:
             response = requests.post(f'{base_url}/clientes/', headers=headers, json=cliente_data)
@@ -122,7 +119,6 @@ def create_object_client(data):
     
 #lEER TXT PARA REALIZAR INSERCION DE CLIENTES 
 def update_database(archivo_txt):
-    """Lee el archivo TXT e inserta los datos en la base de datos."""
     
     try:
         # Suponiendo que archivo_txt es una lista de líneas o que contiene el contenido del archivo
@@ -227,7 +223,6 @@ def validate_invoice(rif: str, fecha: str):
     
 
 def update_drafts():
-    """Lee el archivo TXT e inserta los datos en la base de datos."""
     archivo = open('clientes_facturas.txt', 'r', encoding='utf-8') 
     try:
         # Suponiendo que archivo_txt es una lista de líneas o que contiene el contenido del archivo
@@ -308,7 +303,7 @@ def insert_drafts(draft_data):
 
     # Construye la URL del endpoint de borradores
     request_url = f'{base_url}/borradores/'
-    print("SOLICITUD HACIA:", request_url)
+   
 
     try:
         # Realizar la petición POST para insertar el borrador

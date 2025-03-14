@@ -103,12 +103,6 @@ def api_data(*args):
                 errores.write("\n" + str(result_execute[0]))
                 continue
 
-            """ 
-            if "j" in rif_cliente.lower():
-                clientes_juridicos.write("\n" + str(result_execute[0]))
-                continue"
-            """
-
             count += 1 #Corresponde con el numero de proceso
 
             # Escribe los resultados en el archivo
@@ -121,17 +115,16 @@ def api_data(*args):
             productos = [] #Descomponer la estructura de productos e incluir solo el nombre....
             print("--------------------------------------------------------------------------------------------------------------------")
             if invoice_line_ids:
-
                 lines = models.execute_kw(db, uid, api_key, 'account.move.line', 'read', [invoice_line_ids], {'fields': ['product_id', 'name']}) #Lines es un arreglo que contiene diccionarios
                 for line in lines:
                     prod = line['product_id'][1].replace("\n", " ")
                     productos.append(prod)
 
-            print("PRODUCTOS ---------------------------->>>>>>>", productos)
-            
             pagos = cons_payments(result_execute[0]["invoice_payments_widget"], models, data_db, uid)
 
             if pagos == None:
+                pagos_txt = open("pagos_txt.txt", "w")
+                pagos_txt.write(str(result_execute[0]) + "\n")
                 continue
 
             if '[SRV-CUA-0008] Servicio Instalación de clientes ' in productos:
@@ -173,7 +166,6 @@ def api_data(*args):
         clientes_facturas_1.seek(0)
         return clientes_facturas_1
     
-
 
 def fact_operation(info_client, client_type):
     #Recorremos los pagos del cliente para ver si todos son en bs o en dolares
